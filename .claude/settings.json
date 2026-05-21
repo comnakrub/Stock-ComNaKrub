@@ -1,4 +1,22 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(git commit *)",
+      "Bash(npm audit *)",
+      "Bash(Test-Path \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\node_modules\")",
+      "Bash(Test-Path \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\db\")",
+      "Bash(Test-Path \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\routes\")",
+      "Bash(Test-Path \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\public\\\\js\")",
+      "Bash(Test-Path \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\public\\\\css\")",
+      "Bash(node -e \"const pkg = require\\('./node_modules/express/package.json'\\); console.log\\('express:', pkg.version\\)\")",
+      "Bash(node -e \"const pkg = require\\('./node_modules/jest/package.json'\\); console.log\\('jest:', pkg.version\\)\")",
+      "Bash(node -e \"const pkg = require\\('./node_modules/supertest/package.json'\\); console.log\\('supertest:', pkg.version\\)\")",
+      "Bash(node -e \"const db = require\\('./db/database'\\); const wal = db.pragma\\('journal_mode'\\); console.log\\('Journal mode:', wal\\); const conn = db.pragma\\('query_only'\\); console.log\\('DB initialized and healthy'\\); db.close\\(\\);\")",
+      "PowerShell(node -e \"const e = require\\('./routes/helpers/excel'\\); console.log\\('Excel helper exports:', Object.keys\\(e\\)\\)\")",
+      "Bash(dir \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\routes\\\\helpers\")",
+      "Bash(dir \"C:\\\\Users\\\\na\\\\Documents\\\\GitHub\\\\Stock-ComNaKrub\\\\tests\\\\helpers\")"
+    ]
+  },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true
   }

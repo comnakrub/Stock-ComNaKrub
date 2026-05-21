@@ -214,6 +214,29 @@ Each of the 8 categories follows an identical pattern:
 - `Total Cost` field is read-only in the form (shows computed value)
 - On Add: `Total` = `List` (no deductions yet)
 - On Edit: `Total` is editable directly if needed (manual correction)
+- Fields with fixed options render as `<select>` dropdowns (see table below)
+
+**Dropdown fields by category:**
+
+| Category | Field | Options |
+|----------|-------|---------|
+| All | Package | Box, Tray, OEM |
+| CPU | Socket | LGA1700, LGA1200, AM5, AM4 |
+| RAM | MemoryType | DDR4, DDR5 |
+| RAM | RGB | Yes, No |
+| RAM | Color | Black, White, Red, Blue, Silver |
+| M.2 | M2Type | 2280, 2260, 2242 |
+| M.2 | Interface | PCIe 4.0 NVMe, PCIe 3.0 NVMe, SATA |
+| SSD | Interface | SATA III, PCIe 3.0, PCIe 4.0 |
+| Mainboard | Size | ATX, mATX, ITX, E-ATX |
+| Mainboard | Socket | LGA1700, LGA1200, AM5, AM4 |
+| Mainboard | Chipset | H610, B660, B760, Z690, Z790, A620, B650, X670, X670E |
+| VGA | Chipset | NVIDIA, AMD, Intel |
+| VGA | FAN | 1, 2, 3 |
+| PSU | Certification | 80+ White, 80+ Bronze, 80+ Silver, 80+ Gold, 80+ Platinum, 80+ Titanium |
+| Monitor | PanelType | IPS, VA, TN, OLED |
+| Monitor | MaxResolution | 1920×1080, 2560×1080, 2560×1440, 3440×1440, 3840×2160 |
+| Monitor | RefreshRate | 60Hz, 75Hz, 100Hz, 144Hz, 165Hz, 180Hz, 240Hz, 360Hz |
 
 **Delete**
 - Confirmation prompt before delete

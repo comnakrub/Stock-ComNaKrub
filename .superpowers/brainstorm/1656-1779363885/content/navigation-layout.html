@@ -1,0 +1,75 @@
+<h2>Navigation Layout — เลือกรูปแบบเมนูหลัก</h2>
+<p class="subtitle">เลือก Layout ที่ใช้งานง่ายที่สุดสำหรับระบบ Stock + DIY Builder</p>
+
+<div class="cards">
+
+  <!-- Option A: Sidebar -->
+  <div class="card" data-choice="sidebar" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#1a1a2e; border-radius:8px; font-family:monospace; font-size:12px;">
+      <div style="display:flex; height:200px; gap:0; border:1px solid #333; border-radius:6px; overflow:hidden;">
+        <div style="width:130px; background:#16213e; padding:10px; flex-shrink:0;">
+          <div style="color:#e94560; font-weight:bold; margin-bottom:12px; font-size:11px;">☰ Stock System</div>
+          <div style="color:#aaa; font-size:10px; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Stock</div>
+          <div style="background:#e94560; color:white; padding:4px 8px; border-radius:4px; font-size:10px; margin-bottom:3px;">▸ CPU</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:3px;">▸ RAM</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:3px;">▸ M.2</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:3px;">▸ SSD</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:3px;">▸ Mainboard</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:3px;">▸ VGA</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:3px;">▸ PSU</div>
+          <div style="color:#ccc; padding:4px 8px; font-size:10px; margin-bottom:8px;">▸ Monitor</div>
+          <div style="color:#aaa; font-size:10px; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Builder</div>
+          <div style="color:#f5a623; padding:4px 8px; font-size:10px;">▸ DIY Builder</div>
+        </div>
+        <div style="flex:1; background:#0f3460; padding:12px;">
+          <div style="color:white; font-size:12px; font-weight:bold; margin-bottom:8px;">CPU Stock</div>
+          <div style="background:rgba(255,255,255,0.1); height:12px; border-radius:3px; margin-bottom:6px;"></div>
+          <div style="background:rgba(255,255,255,0.07); height:10px; border-radius:3px; margin-bottom:6px; width:80%;"></div>
+          <div style="background:rgba(255,255,255,0.07); height:10px; border-radius:3px; margin-bottom:6px; width:90%;"></div>
+          <div style="background:rgba(255,255,255,0.07); height:10px; border-radius:3px; width:70%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Sidebar Navigation</h3>
+      <p>เมนูด้านซ้าย เห็นทุก Category ตลอดเวลา คลิกสลับได้ทันที เหมาะกับหน้าจอกว้าง</p>
+    </div>
+  </div>
+
+  <!-- Option B: Top Tab -->
+  <div class="card" data-choice="toptab" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#1a1a2e; border-radius:8px; font-family:monospace; font-size:12px;">
+      <div style="height:200px; border:1px solid #333; border-radius:6px; overflow:hidden;">
+        <div style="background:#16213e; padding:8px 12px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+          <span style="color:#e94560; font-weight:bold; font-size:10px; margin-right:8px;">Stock System</span>
+          <span style="background:#e94560; color:white; padding:3px 7px; border-radius:4px; font-size:9px;">CPU</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">RAM</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">M.2</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">SSD</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">MB</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">VGA</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">PSU</span>
+          <span style="color:#ccc; padding:3px 7px; font-size:9px;">Mon</span>
+          <span style="color:#f5a623; padding:3px 7px; font-size:9px; border:1px solid #f5a623; border-radius:4px;">DIY</span>
+        </div>
+        <div style="background:#0f3460; padding:6px 12px; display:flex; gap:6px;">
+          <span style="background:rgba(255,255,255,0.15); color:white; padding:2px 8px; border-radius:3px; font-size:9px;">+ Add</span>
+          <span style="color:#aaa; padding:2px 8px; font-size:9px;">Import Excel</span>
+          <span style="color:#aaa; padding:2px 8px; font-size:9px; margin-left:auto;">EN / TH</span>
+        </div>
+        <div style="background:#1a1a2e; padding:12px;">
+          <div style="background:rgba(255,255,255,0.08); height:10px; border-radius:3px; margin-bottom:6px;"></div>
+          <div style="background:rgba(255,255,255,0.05); height:10px; border-radius:3px; margin-bottom:6px; width:85%;"></div>
+          <div style="background:rgba(255,255,255,0.05); height:10px; border-radius:3px; width:75%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Top Tab Navigation</h3>
+      <p>แถบเมนูด้านบน ประหยัดพื้นที่แนวตั้ง เนื้อหาแสดงได้เยอะกว่า เหมาะกับหน้าจอขนาดกลาง</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">คลิกเลือก Layout ที่ชอบ แล้วแจ้งในช่อง chat ครับ</p>

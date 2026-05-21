@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock ComNaKrub — Prototype</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#c9d1d9;display:flex;height:100vh;overflow:hidden;font-size:14px}
+
+  /* Sidebar */
+  #sidebar{width:200px;background:#161b22;border-right:1px solid #30363d;display:flex;flex-direction:column;flex-shrink:0}
+  #sidebar .logo{padding:16px;color:#58a6ff;font-weight:700;font-size:15px;border-bottom:1px solid #30363d}
+  #sidebar .logo span{font-size:11px;color:#8b949e;display:block;font-weight:400;margin-top:2px}
+  #sidebar .section-label{padding:12px 16px 4px;font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px}
+  #sidebar .nav-item{padding:7px 16px;cursor:pointer;color:#8b949e;border-left:3px solid transparent;font-size:13px;transition:all .15s}
+  #sidebar .nav-item:hover{background:#1c2128;color:#c9d1d9}
+  #sidebar .nav-item.active{background:#1c2128;color:#58a6ff;border-left-color:#1f6feb}
+  #sidebar .nav-item.diy{color:#f0883e}
+  #sidebar .nav-item.diy.active{color:#f0883e;border-left-color:#f0883e}
+  #sidebar .lang-toggle{margin-top:auto;padding:12px 16px;border-top:1px solid #30363d;display:flex;gap:6px}
+  #sidebar .lang-btn{padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;border:1px solid #30363d;background:transparent;color:#8b949e}
+  #sidebar .lang-btn.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
+
+  /* Main */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  #topbar{background:#161b22;border-bottom:1px solid #30363d;padding:10px 20px;display:flex;align-items:center;gap:10px}
+  #topbar h1{font-size:16px;color:#c9d1d9;font-weight:600}
+  #topbar .spacer{flex:1}
+  .btn{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;border:none;transition:all .15s}
+  .btn-primary{background:#1f6feb;color:#fff}
+  .btn-primary:hover{background:#388bfd}
+  .btn-success{background:#238636;color:#fff}
+  .btn-success:hover{background:#2ea043}
+  .btn-danger{background:#b91c1c;color:#fff;padding:4px 8px;font-size:11px}
+  .btn-warning{background:#9e6a03;color:#fff;padding:4px 8px;font-size:11px}
+  .btn-sm{padding:4px 10px;font-size:11px}
+  .btn-outline{background:transparent;border:1px solid #30363d;color:#8b949e}
+  .btn-outline:hover{border-color:#58a6ff;color:#58a6ff}
+
+  /* Content */
+  #content{flex:1;overflow-y:auto;padding:20px}
+
+  /* Table */
+  .table-wrap{border:1px solid #30363d;border-radius:8px;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#161b22;padding:8px 12px;text-align:left;color:#8b949e;font-weight:500;border-bottom:1px solid #30363d;white-space:nowrap}
+  td{padding:8px 12px;border-bottom:1px solid #21262d;white-space:nowrap}
+  tr:hover td{background:#1c2128}
+  tr:last-child td{border-bottom:none}
+  .badge-stock{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .badge-ok{background:#0d4429;color:#3fb950}
+  .badge-low{background:#5a1e02;color:#f0883e}
+  .badge-zero{background:#3d1212;color:#f85149}
+  .price{color:#3fb950;font-weight:500}
+  .cost{color:#8b949e}
+
+  /* Actions */
+  .actions{display:flex;gap:4px}
+
+  /* Modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+  .modal-overlay.show{display:flex}
+  .modal{background:#161b22;border:1px solid #30363d;border-radius:10px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto}
+  .modal-header{padding:16px 20px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center}
+  .modal-header h2{font-size:15px;color:#c9d1d9}
+  .modal-close{cursor:pointer;color:#8b949e;font-size:20px;background:none;border:none;color:#8b949e}
+  .modal-close:hover{color:#f85149}
+  .modal-body{padding:20px}
+  .modal-footer{padding:16px 20px;border-top:1px solid #30363d;display:flex;justify-content:flex-end;gap:8px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-group{display:flex;flex-direction:column;gap:4px}
+  .form-group.full{grid-column:1/-1}
+  label{font-size:12px;color:#8b949e}
+  input,textarea,select{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:7px 10px;color:#c9d1d9;font-size:13px;width:100%}
+  input:focus,select:focus{outline:none;border-color:#1f6feb}
+  textarea{resize:vertical;min-height:60px}
+
+  /* Import modal */
+  .drop-zone{border:2px dashed #30363d;border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:all .15s}
+  .drop-zone:hover{border-color:#1f6feb;background:#1c2128}
+  .drop-zone .icon{font-size:36px;margin-bottom:8px}
+  .drop-zone p{color:#8b949e;font-size:13px}
+
+  /* DIY Builder */
+  #diy-view{display:flex;flex-direction:column;height:100%}
+  .diy-body{display:flex;flex:1;gap:0;overflow:hidden;height:calc(100vh - 110px)}
+  .diy-left{flex:1;border-right:1px solid #30363d;display:flex;flex-direction:column;overflow:hidden}
+  .diy-right{width:320px;display:flex;flex-direction:column;overflow:hidden}
+  .diy-tabs{display:flex;gap:2px;padding:12px 16px;background:#161b22;border-bottom:1px solid #30363d;flex-wrap:wrap}
+  .diy-tab{padding:4px 10px;border-radius:4px;cursor:pointer;font-size:12px;color:#8b949e;border:1px solid transparent}
+  .diy-tab.active{background:#1f6feb;color:#fff}
+  .diy-tab:hover:not(.active){background:#1c2128;color:#c9d1d9}
+  .diy-items{flex:1;overflow-y:auto;padding:12px 16px}
+  .diy-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:6px;margin-bottom:6px;background:#1c2128;border:1px solid #21262d}
+  .diy-item:hover{border-color:#30363d}
+  .diy-item-name{font-size:13px;color:#c9d1d9}
+  .diy-item-price{color:#3fb950;font-size:13px;font-weight:500;margin-right:8px}
+  .diy-item-stock{color:#8b949e;font-size:11px}
+  .diy-spec-header{padding:12px 16px;background:#161b22;border-bottom:1px solid #30363d;font-size:13px;font-weight:600;color:#c9d1d9}
+  .diy-spec-list{flex:1;overflow-y:auto;padding:12px 16px}
+  .diy-spec-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #21262d}
+  .diy-spec-label{color:#8b949e;font-size:12px;min-width:70px}
+  .diy-spec-value{color:#c9d1d9;font-size:12px;flex:1;padding:0 8px}
+  .diy-spec-price{color:#3fb950;font-size:12px;font-weight:500;min-width:70px;text-align:right}
+  .diy-spec-remove{color:#f85149;cursor:pointer;font-size:14px;margin-left:6px;background:none;border:none;color:#f85149}
+  .diy-footer{padding:12px 16px;border-top:1px solid #30363d;background:#161b22}
+  .diy-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .diy-total-label{color:#8b949e;font-size:13px}
+  .diy-total-price{color:#f0883e;font-size:18px;font-weight:700}
+  .diy-empty{color:#8b949e;font-size:13px;text-align:center;padding:20px}
+
+  /* Preview Modal */
+  .preview-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #21262d;font-size:13px}
+  .preview-label{color:#8b949e}
+  .preview-value{color:#c9d1d9}
+  .preview-price{color:#3fb950;font-weight:500}
+  .preview-total{display:flex;justify-content:space-between;padding:12px 0 0;font-size:16px;font-weight:700}
+  .preview-total span:last-child{color:#f0883e}
+
+  .page{display:none}
+  .page.active{display:flex;flex-direction:column;flex:1}
+
+  .tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <div class="logo">Stock ComNaKrub<span>Computer Hardware</span></div>
+  <div class="section-label" data-en="STOCK" data-th="คลังสินค้า">STOCK</div>
+  <div class="nav-item active" onclick="showPage('cpu')" data-en="CPU" data-th="CPU">CPU</div>
+  <div class="nav-item" onclick="showPage('ram')" data-en="RAM" data-th="RAM">RAM</div>
+  <div class="nav-item" onclick="showPage('m2')" data-en="M.2" data-th="M.2">M.2</div>
+  <div class="nav-item" onclick="showPage('ssd')" data-en="SSD" data-th="SSD">SSD</div>
+  <div class="nav-item" onclick="showPage('mainboard')" data-en="Mainboard" data-th="เมนบอร์ด">Mainboard</div>
+  <div class="nav-item" onclick="showPage('vga')" data-en="VGA" data-th="การ์ดจอ">VGA</div>
+  <div class="nav-item" onclick="showPage('psu')" data-en="PSU" data-th="เพาเวอร์ซัพพลาย">PSU</div>
+  <div class="nav-item" onclick="showPage('monitor')" data-en="Monitor" data-th="มอนิเตอร์">Monitor</div>
+  <div class="section-label" data-en="BUILDER" data-th="ประกอบสเปค">BUILDER</div>
+  <div class="nav-item diy" onclick="showPage('diy')" data-en="DIY PC Builder" data-th="ประกอบสเปคคอม">DIY PC Builder</div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('th')">TH</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main">
+
+  <!-- CPU Page -->
+  <div class="page active" id="page-cpu">
+    <div id="topbar">
+      <h1 data-en="CPU Stock" data-th="คลังสินค้า CPU">CPU Stock</h1>
+      <div class="spacer"></div>
+      <button class="btn btn-outline btn-sm" onclick="showImport()" data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button>
+      <button class="btn btn-primary btn-sm" onclick="showAddModal('cpu')" data-en="+ Add CPU" data-th="+ เพิ่ม CPU">+ Add CPU</button>
+    </div>
+    <div id="content">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-en="Type" data-th="ชื่อสินค้า">Type</th>
+              <th data-en="Brand" data-th="ยี่ห้อ">Brand</th>
+              <th data-en="Model" data-th="รุ่น">Model</th>
+              <th data-en="Socket" data-th="ซ็อกเก็ต">Socket</th>
+              <th data-en="Package" data-th="แพ็กเกจ">Package</th>
+              <th data-en="List" data-th="รับเข้า">List</th>
+              <th data-en="Total" data-th="คงเหลือ">Total</th>
+              <th data-en="Cost" data-th="ต้นทุน">Cost</th>
+              <th data-en="Price" data-th="ราคาขาย">Price</th>
+              <th data-en="Note" data-th="หมายเหตุ">Note</th>
+              <th data-en="Actions" data-th="จัดการ">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>INTEL I5 GEN14 14500</td><td>Intel</td><td>Core i5-14500</td><td>LGA1700</td><td>Box</td>
+              <td>10</td><td><span class="badge-stock badge-ok">7</span></td>
+              <td class="cost">5,200</td><td class="price">6,900</td><td>—</td>
+              <td><div class="actions"><button class="btn btn-warning" onclick="showEditModal()" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger" data-en="Delete" data-th="ลบ">Delete</button></div></td>
+            </tr>
+            <tr>
+              <td>INTEL I7 GEN14 14700K</td><td>Intel</td><td>Core i7-14700K</td><td>LGA1700</td><td>Box</td>
+              <td>5</td><td><span class="badge-stock badge-low">2</span></td>
+              <td class="cost">7,100</td><td class="price">9,500</td><td>—</td>
+              <td><div class="actions"><button class="btn btn-warning" onclick="showEditModal()" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger" data-en="Delete" data-th="ลบ">Delete</button></div></td>
+            </tr>
+            <tr>
+              <td>AMD RYZEN 5 7600X</td><td>AMD</td><td>Ryzen 5 7600X</td><td>AM5</td><td>Tray</td>
+              <td>8</td><td><span class="badge-stock badge-ok">5</span></td>
+              <td class="cost">5,500</td><td class="price">7,200</td><td>สินค้าใหม่</td>
+              <td><div class="actions"><button class="btn btn-warning" onclick="showEditModal()" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger" data-en="Delete" data-th="ลบ">Delete</button></div></td>
+            </tr>
+            <tr>
+              <td>AMD RYZEN 7 7700X</td><td>AMD</td><td>Ryzen 7 7700X</td><td>AM5</td><td>Box</td>
+              <td>3</td><td><span class="badge-stock badge-zero">0</span></td>
+              <td class="cost">8,200</td><td class="price">10,900</td><td>—</td>
+              <td><div class="actions"><button class="btn btn-warning" onclick="showEditModal()" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger" data-en="Delete" data-th="ลบ">Delete</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic pages -->
+  <div class="page" id="page-ram"><div id="topbar"><h1 data-en="RAM Stock" data-th="คลังสินค้า RAM">RAM Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm" data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button><button class="btn btn-primary btn-sm" data-en="+ Add RAM" data-th="+ เพิ่ม RAM">+ Add RAM</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px" data-en="RAM stock table — same layout as CPU" data-th="ตาราง RAM — layout เหมือน CPU">RAM stock table — same layout as CPU</div></div></div>
+  <div class="page" id="page-m2"><div id="topbar"><h1 data-en="M.2 Stock" data-th="คลังสินค้า M.2">M.2 Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm" data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button><button class="btn btn-primary btn-sm" data-en="+ Add M.2" data-th="+ เพิ่ม M.2">+ Add M.2</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px" data-en="M.2 stock table" data-th="ตาราง M.2">M.2 stock table</div></div></div>
+  <div class="page" id="page-ssd"><div id="topbar"><h1>SSD Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm">Import Excel</button><button class="btn btn-primary btn-sm">+ Add SSD</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px">SSD stock table</div></div></div>
+  <div class="page" id="page-mainboard"><div id="topbar"><h1 data-en="Mainboard Stock" data-th="คลังสินค้า เมนบอร์ด">Mainboard Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm">Import Excel</button><button class="btn btn-primary btn-sm">+ Add Mainboard</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px">Mainboard stock table</div></div></div>
+  <div class="page" id="page-vga"><div id="topbar"><h1>VGA Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm">Import Excel</button><button class="btn btn-primary btn-sm">+ Add VGA</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px">VGA stock table</div></div></div>
+  <div class="page" id="page-psu"><div id="topbar"><h1>PSU Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm">Import Excel</button><button class="btn btn-primary btn-sm">+ Add PSU</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px">PSU stock table</div></div></div>
+  <div class="page" id="page-monitor"><div id="topbar"><h1>Monitor Stock</h1><div class="spacer"></div><button class="btn btn-outline btn-sm">Import Excel</button><button class="btn btn-primary btn-sm">+ Add Monitor</button></div><div id="content"><div style="color:#8b949e;text-align:center;padding:60px">Monitor stock table</div></div></div>
+
+  <!-- DIY Page -->
+  <div class="page" id="page-diy">
+    <div id="topbar">
+      <h1 data-en="DIY PC Builder" data-th="ประกอบสเปคคอม">DIY PC Builder</h1>
+      <div class="spacer"></div>
+      <button class="btn btn-outline btn-sm" onclick="clearSpec()" data-en="Clear All" data-th="ล้างทั้งหมด">Clear All</button>
+      <button class="btn btn-success" onclick="showPreview()" data-en="Preview & Confirm" data-th="ดูสรุปและยืนยัน">Preview &amp; Confirm</button>
+    </div>
+    <div class="diy-body">
+      <!-- Left: catalog -->
+      <div class="diy-left">
+        <div class="diy-tabs">
+          <div class="diy-tab active" onclick="setDiyTab(this,'cpu-items')" data-en="CPU" data-th="CPU">CPU</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'ram-items')" data-en="RAM" data-th="RAM">RAM</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'m2-items')" data-en="M.2" data-th="M.2">M.2</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'ssd-items')" data-en="SSD" data-th="SSD">SSD</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'mb-items')" data-en="Mainboard" data-th="เมนบอร์ด">Mainboard</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'vga-items')" data-en="VGA" data-th="การ์ดจอ">VGA</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'psu-items')" data-en="PSU" data-th="PSU">PSU</div>
+          <div class="diy-tab" onclick="setDiyTab(this,'mon-items')" data-en="Monitor" data-th="มอนิเตอร์">Monitor</div>
+        </div>
+        <div class="diy-items" id="diy-catalog">
+          <div id="cpu-items">
+            <div class="diy-item"><div><div class="diy-item-name">INTEL I5 GEN14 14500</div><div class="diy-item-stock" data-en="Stock: 7" data-th="คงเหลือ: 7">Stock: 7</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿6,900</span><button class="btn btn-success btn-sm" onclick="addToSpec('CPU','INTEL I5 GEN14 14500',6900)" data-en="+" data-th="+">+</button></div></div>
+            <div class="diy-item"><div><div class="diy-item-name">INTEL I7 GEN14 14700K</div><div class="diy-item-stock" data-en="Stock: 2" data-th="คงเหลือ: 2">Stock: 2</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿9,500</span><button class="btn btn-success btn-sm" onclick="addToSpec('CPU','INTEL I7 GEN14 14700K',9500)" data-en="+" data-th="+">+</button></div></div>
+            <div class="diy-item"><div><div class="diy-item-name">AMD RYZEN 5 7600X</div><div class="diy-item-stock" data-en="Stock: 5" data-th="คงเหลือ: 5">Stock: 5</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿7,200</span><button class="btn btn-success btn-sm" onclick="addToSpec('CPU','AMD RYZEN 5 7600X',7200)" data-en="+" data-th="+">+</button></div></div>
+          </div>
+          <div id="ram-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">DDR5 32GB BUS5600 KINGSTON</div><div class="diy-item-stock">Stock: 10</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿3,200</span><button class="btn btn-success btn-sm" onclick="addToSpec('RAM','DDR5 32GB BUS5600 KINGSTON',3200)">+</button></div></div>
+            <div class="diy-item"><div><div class="diy-item-name">DDR4 16GB BUS3200 CORSAIR</div><div class="diy-item-stock">Stock: 8</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿1,800</span><button class="btn btn-success btn-sm" onclick="addToSpec('RAM','DDR4 16GB BUS3200 CORSAIR',1800)">+</button></div></div>
+          </div>
+          <div id="m2-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">SAMSUNG 980 PRO 1TB NVMe</div><div class="diy-item-stock">Stock: 6</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿2,900</span><button class="btn btn-success btn-sm" onclick="addToSpec('M.2','SAMSUNG 980 PRO 1TB NVMe',2900)">+</button></div></div>
+          </div>
+          <div id="ssd-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">WD BLUE 1TB SATA SSD</div><div class="diy-item-stock">Stock: 12</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿1,500</span><button class="btn btn-success btn-sm" onclick="addToSpec('SSD','WD BLUE 1TB SATA SSD',1500)">+</button></div></div>
+          </div>
+          <div id="mb-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">ASUS ROG STRIX B760-F LGA1700</div><div class="diy-item-stock">Stock: 4</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿6,500</span><button class="btn btn-success btn-sm" onclick="addToSpec('Mainboard','ASUS ROG STRIX B760-F',6500)">+</button></div></div>
+            <div class="diy-item"><div><div class="diy-item-name">MSI MAG X670E TOMAHAWK AM5</div><div class="diy-item-stock">Stock: 3</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿8,900</span><button class="btn btn-success btn-sm" onclick="addToSpec('Mainboard','MSI MAG X670E TOMAHAWK',8900)">+</button></div></div>
+          </div>
+          <div id="vga-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">RTX 4060 8GB ASUS DUAL</div><div class="diy-item-stock">Stock: 5</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿12,500</span><button class="btn btn-success btn-sm" onclick="addToSpec('VGA','RTX 4060 8GB ASUS DUAL',12500)">+</button></div></div>
+            <div class="diy-item"><div><div class="diy-item-name">RX 7600 8GB MSI MECH</div><div class="diy-item-stock">Stock: 3</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿9,900</span><button class="btn btn-success btn-sm" onclick="addToSpec('VGA','RX 7600 8GB MSI MECH',9900)">+</button></div></div>
+          </div>
+          <div id="psu-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">CORSAIR RM750x 750W 80+ GOLD</div><div class="diy-item-stock">Stock: 7</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿3,900</span><button class="btn btn-success btn-sm" onclick="addToSpec('PSU','CORSAIR RM750x 750W',3900)">+</button></div></div>
+          </div>
+          <div id="mon-items" style="display:none">
+            <div class="diy-item"><div><div class="diy-item-name">LG 27" 4K IPS 144Hz</div><div class="diy-item-stock">Stock: 4</div></div><div style="display:flex;align-items:center"><span class="diy-item-price">฿11,500</span><button class="btn btn-success btn-sm" onclick="addToSpec('Monitor','LG 27\" 4K IPS 144Hz',11500)">+</button></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Right: spec list -->
+      <div class="diy-right">
+        <div class="diy-spec-header" data-en="Selected Spec" data-th="สเปคที่เลือก">Selected Spec</div>
+        <div class="diy-spec-list" id="spec-list">
+          <div class="diy-empty" id="spec-empty" data-en="No items selected yet" data-th="ยังไม่มีรายการ">No items selected yet</div>
+        </div>
+        <div class="diy-footer">
+          <div class="diy-total">
+            <span class="diy-total-label" data-en="Total Price" data-th="ราคารวม">Total Price</span>
+            <span class="diy-total-price" id="total-price">฿0</span>
+          </div>
+          <button class="btn btn-success" style="width:100%" onclick="showPreview()" data-en="Preview & Confirm" data-th="ดูสรุปและยืนยัน">Preview &amp; Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 data-en="Add CPU" data-th="เพิ่ม CPU">Add CPU</h2>
+      <button class="modal-close" onclick="closeModal('modal-add')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label data-en="Type (Product Name)" data-th="ชื่อสินค้า">Type (Product Name)</label><input placeholder="e.g. INTEL I5 GEN14 14500"></div>
+        <div class="form-group"><label data-en="Brand" data-th="ยี่ห้อ">Brand</label><input placeholder="Intel / AMD"></div>
+        <div class="form-group"><label data-en="Model" data-th="รุ่น">Model</label><input placeholder="Core i5-14500"></div>
+        <div class="form-group"><label data-en="Socket" data-th="ซ็อกเก็ต">Socket</label><input placeholder="LGA1700 / AM5"></div>
+        <div class="form-group"><label data-en="Package" data-th="แพ็กเกจ">Package</label><select><option>Box</option><option>Tray</option><option>OEM</option></select></div>
+        <div class="form-group"><label data-en="Codename" data-th="โค้ดเนม">Codename</label><input placeholder="Raptor Lake"></div>
+        <div class="form-group"><label data-en="List (Stock In)" data-th="ยอดรับเข้า">List (Stock In)</label><input type="number" placeholder="0"></div>
+        <div class="form-group"><label data-en="Cost (฿)" data-th="ต้นทุน (฿)">Cost (฿)</label><input type="number" placeholder="0"></div>
+        <div class="form-group"><label data-en="Price (฿)" data-th="ราคาขาย (฿)">Price (฿)</label><input type="number" placeholder="0"></div>
+        <div class="form-group full"><label data-en="Note" data-th="หมายเหตุ">Note</label><textarea placeholder="Optional..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add')" data-en="Cancel" data-th="ยกเลิก">Cancel</button>
+      <button class="btn btn-primary" data-en="Save" data-th="บันทึก">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 data-en="Import from Excel" data-th="นำเข้าจาก Excel">Import from Excel</h2>
+      <button class="modal-close" onclick="closeModal('modal-import')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="drop-zone">
+        <div class="icon">📊</div>
+        <p data-en="Drop .xlsx file here or click to browse" data-th="วางไฟล์ .xlsx ที่นี่ หรือคลิกเพื่อเลือกไฟล์">Drop .xlsx file here or click to browse</p>
+        <p style="margin-top:8px;font-size:11px;color:#6e7681" data-en="Supports .xlsx format. Column headers must match: Type, Brand, Model..." data-th="รองรับไฟล์ .xlsx ชื่อ column ต้องตรงกับ: Type, Brand, Model...">Supports .xlsx format. Column headers must match: Type, Brand, Model...</p>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:#1c2128;border-radius:6px;font-size:12px;color:#8b949e">
+        <span data-en="Download Template" data-th="ดาวน์โหลด Template">Download Template</span>:
+        <span style="color:#58a6ff;cursor:pointer">cpu-template.xlsx</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-import')" data-en="Cancel" data-th="ยกเลิก">Cancel</button>
+      <button class="btn btn-primary" data-en="Import" data-th="นำเข้า">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal-overlay" id="modal-preview">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 data-en="Spec Preview — Confirm to Deduct Stock" data-th="สรุปสเปค — ยืนยันเพื่อตัด Stock">Spec Preview — Confirm to Deduct Stock</h2>
+      <button class="modal-close" onclick="closeModal('modal-preview')">✕</button>
+    </div>
+    <div class="modal-body" id="preview-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-preview')" data-en="Cancel" data-th="ยกเลิก">Cancel</button>
+      <button class="btn btn-success" onclick="confirmSpec()" data-en="✓ Confirm & Deduct Stock" data-th="✓ ยืนยันและตัด Stock">✓ Confirm &amp; Deduct Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmed Modal -->
+<div class="modal-overlay" id="modal-confirmed">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 style="color:#3fb950" data-en="✓ Stock Deducted Successfully" data-th="✓ ตัด Stock สำเร็จแล้ว">✓ Stock Deducted Successfully</h2>
+      <button class="modal-close" onclick="closeModal('modal-confirmed')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:#8b949e;margin-bottom:16px;font-size:13px" data-en="Stock has been deducted. If customer cancels, click Restore Stock below." data-th="ตัด Stock เรียบร้อยแล้ว หากลูกค้ายกเลิก ให้กด คืน Stock ด้านล่าง">Stock has been deducted. If customer cancels, click Restore Stock below.</p>
+      <div id="confirmed-body"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="restoreStock()" data-en="↩ Restore Stock (Customer Cancelled)" data-th="↩ คืน Stock (ลูกค้ายกเลิก)">↩ Restore Stock (Customer Cancelled)</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-confirmed');clearSpec()" data-en="Done" data-th="เสร็จสิ้น">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentLang = 'en';
+let specItems = [];
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = lang === 'en' ? el.dataset.en : el.dataset.th;
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function showAddModal() { document.getElementById('modal-add').classList.add('show') }
+function showEditModal() { document.getElementById('modal-add').classList.add('show') }
+function showImport() { document.getElementById('modal-import').classList.add('show') }
+function closeModal(id) { document.getElementById(id).classList.remove('show') }
+
+function setDiyTab(el, itemsId) {
+  document.querySelectorAll('.diy-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#diy-catalog > div').forEach(d => d.style.display = 'none');
+  document.getElementById(itemsId).style.display = 'block';
+}
+
+function addToSpec(cat, name, price) {
+  const existing = specItems.find(i => i.cat === cat);
+  if (existing) { existing.name = name; existing.price = price; }
+  else specItems.push({cat, name, price});
+  renderSpec();
+}
+
+function removeFromSpec(cat) {
+  specItems = specItems.filter(i => i.cat !== cat);
+  renderSpec();
+}
+
+function clearSpec() { specItems = []; renderSpec(); }
+
+function renderSpec() {
+  const list = document.getElementById('spec-list');
+  const empty = document.getElementById('spec-empty');
+  const total = specItems.reduce((s,i) => s+i.price, 0);
+  document.getElementById('total-price').textContent = '฿'+total.toLocaleString();
+  if (!specItems.length) { list.innerHTML = ''; list.appendChild(empty); return; }
+  list.innerHTML = specItems.map(i => `
+    <div class="diy-spec-row">
+      <span class="diy-spec-label">${i.cat}</span>
+      <span class="diy-spec-value">${i.name}</span>
+      <span class="diy-spec-price">฿${i.price.toLocaleString()}</span>
+      <button class="diy-spec-remove" onclick="removeFromSpec('${i.cat}')">✕</button>
+    </div>`).join('');
+}
+
+function showPreview() {
+  if (!specItems.length) { alert('Please select at least one component'); return; }
+  const total = specItems.reduce((s,i) => s+i.price, 0);
+  document.getElementById('preview-body').innerHTML =
+    specItems.map(i => `<div class="preview-row"><span class="preview-label">${i.cat}</span><span class="preview-value">${i.name}</span><span class="preview-price">฿${i.price.toLocaleString()}</span></div>`).join('') +
+    `<div class="preview-total"><span data-en="Total" data-th="รวม">Total</span><span>฿${total.toLocaleString()}</span></div>`;
+  document.getElementById('modal-preview').classList.add('show');
+}
+
+function confirmSpec() {
+  const total = specItems.reduce((s,i) => s+i.price, 0);
+  document.getElementById('confirmed-body').innerHTML =
+    specItems.map(i => `<div class="preview-row"><span class="preview-label">${i.cat}</span><span class="preview-value">${i.name}</span><span class="preview-price">฿${i.price.toLocaleString()}</span></div>`).join('') +
+    `<div class="preview-total"><span>Total</span><span>฿${total.toLocaleString()}</span></div>`;
+  closeModal('modal-preview');
+  document.getElementById('modal-confirmed').classList.add('show');
+}
+
+function restoreStock() {
+  closeModal('modal-confirmed');
+  clearSpec();
+  alert(currentLang === 'en' ? 'Stock restored successfully!' : 'คืน Stock เรียบร้อยแล้ว!');
+}
+</script>
+</body>
+</html>

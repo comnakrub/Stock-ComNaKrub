@@ -1,0 +1,136 @@
+<h2>DIY Builder Layout — เลือกรูปแบบหน้าประกอบสเปค</h2>
+<p class="subtitle">หน้านี้ใช้เลือกอุปกรณ์แต่ละประเภทแล้วรวมเป็นสเปค PC</p>
+
+<div class="cards">
+
+  <!-- Option A: Split Panel -->
+  <div class="card" data-choice="split" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:12px; background:#0d1117; border-radius:8px;">
+      <div style="height:200px; border-radius:6px; overflow:hidden; border:1px solid #30363d; display:flex; flex-direction:column;">
+        <!-- Header -->
+        <div style="background:#161b22; padding:6px 10px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #30363d;">
+          <span style="color:#58a6ff; font-size:10px; font-weight:bold;">🖥 DIY PC Builder</span>
+          <span style="background:#1f6feb; color:white; padding:2px 8px; border-radius:3px; font-size:8px;">✓ Confirm &amp; Deduct Stock</span>
+        </div>
+        <!-- Body: split left=catalog, right=spec list -->
+        <div style="display:flex; flex:1; overflow:hidden;">
+          <!-- Left: Component selector -->
+          <div style="width:55%; border-right:1px solid #30363d; padding:8px; overflow:hidden;">
+            <div style="color:#8b949e; font-size:8px; margin-bottom:4px; text-transform:uppercase;">เลือกอุปกรณ์</div>
+            <!-- Tabs -->
+            <div style="display:flex; gap:2px; margin-bottom:6px; flex-wrap:wrap;">
+              <span style="background:#1f6feb; color:white; padding:1px 5px; border-radius:2px; font-size:7px;">CPU</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">RAM</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">M.2</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">SSD</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">MB</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">VGA</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">PSU</span>
+              <span style="color:#8b949e; padding:1px 5px; font-size:7px;">MON</span>
+            </div>
+            <!-- Item list -->
+            <div style="font-size:8px;">
+              <div style="display:flex; justify-content:space-between; padding:3px 4px; background:#21262d; border-radius:2px; margin-bottom:2px;">
+                <span style="color:#c9d1d9;">INTEL I5-14500</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <span style="color:#3fb950;">฿6,900</span>
+                  <span style="background:#238636; color:white; padding:1px 4px; border-radius:2px; cursor:pointer;">+</span>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:3px 4px; margin-bottom:2px;">
+                <span style="color:#c9d1d9;">INTEL I7-14700K</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <span style="color:#3fb950;">฿9,500</span>
+                  <span style="background:#238636; color:white; padding:1px 4px; border-radius:2px;">+</span>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:3px 4px; background:#21262d; border-radius:2px;">
+                <span style="color:#c9d1d9;">AMD RYZEN 5 7600X</span>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <span style="color:#3fb950;">฿7,200</span>
+                  <span style="background:#238636; color:white; padding:1px 4px; border-radius:2px;">+</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Right: Spec summary -->
+          <div style="flex:1; padding:8px; overflow:hidden;">
+            <div style="color:#8b949e; font-size:8px; margin-bottom:4px; text-transform:uppercase;">สเปคที่เลือก</div>
+            <div style="font-size:8px;">
+              <div style="display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #21262d;">
+                <span style="color:#8b949e;">CPU</span>
+                <span style="color:#c9d1d9; font-size:7px;">I5-14500</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #21262d;">
+                <span style="color:#8b949e;">RAM</span>
+                <span style="color:#6e7681; font-size:7px;">—</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #21262d;">
+                <span style="color:#8b949e;">VGA</span>
+                <span style="color:#6e7681; font-size:7px;">—</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0; margin-top:4px;">
+                <span style="color:#f0883e; font-size:9px; font-weight:bold;">รวม</span>
+                <span style="color:#f0883e; font-size:9px; font-weight:bold;">฿6,900</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Split Panel (แนะนำ)</h3>
+      <p>ซ้าย: รายการสินค้าตาม Category | ขวา: สเปคที่เลือกและราคารวม เห็นทุกอย่างในหน้าเดียว</p>
+    </div>
+  </div>
+
+  <!-- Option B: Step by Step -->
+  <div class="card" data-choice="steps" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:12px; background:#0d1117; border-radius:8px;">
+      <div style="height:200px; border-radius:6px; overflow:hidden; border:1px solid #30363d; display:flex; flex-direction:column;">
+        <!-- Step bar -->
+        <div style="background:#161b22; padding:6px 10px; border-bottom:1px solid #30363d;">
+          <div style="display:flex; gap:0; font-size:8px;">
+            <div style="background:#1f6feb; color:white; padding:2px 8px; border-radius:3px 0 0 3px;">1 CPU ✓</div>
+            <div style="background:#1f6feb; color:white; padding:2px 8px;">2 RAM ✓</div>
+            <div style="background:#238636; color:white; padding:2px 8px;">3 VGA</div>
+            <div style="color:#8b949e; padding:2px 8px; background:#21262d;">4 MB</div>
+            <div style="color:#8b949e; padding:2px 8px; background:#21262d;">5 PSU</div>
+            <div style="color:#8b949e; padding:2px 8px; background:#21262d; border-radius:0 3px 3px 0;">...</div>
+          </div>
+        </div>
+        <!-- Step content -->
+        <div style="flex:1; padding:10px;">
+          <div style="color:#c9d1d9; font-size:9px; margin-bottom:8px; font-weight:bold;">Step 3 — เลือก VGA</div>
+          <div style="font-size:8px;">
+            <div style="display:flex; justify-content:space-between; padding:3px 6px; background:#21262d; border-radius:3px; margin-bottom:2px;">
+              <span style="color:#c9d1d9;">RTX 4060 8GB</span>
+              <div style="display:flex; gap:6px;">
+                <span style="color:#3fb950;">฿12,500</span>
+                <span style="background:#238636; color:white; padding:1px 4px; border-radius:2px;">เลือก</span>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:3px 6px; margin-bottom:2px;">
+              <span style="color:#c9d1d9;">RTX 4070 12GB</span>
+              <div style="display:flex; gap:6px;">
+                <span style="color:#3fb950;">฿18,900</span>
+                <span style="background:#238636; color:white; padding:1px 4px; border-radius:2px;">เลือก</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
+            <span style="color:#8b949e; font-size:8px; padding:3px 8px; border:1px solid #30363d; border-radius:3px;">← ย้อนกลับ</span>
+            <span style="background:#1f6feb; color:white; font-size:8px; padding:3px 8px; border-radius:3px;">ถัดไป →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Step by Step Wizard</h3>
+      <p>เลือกทีละ Category ตามลำดับขั้นตอน เหมาะกับผู้ใช้ที่ไม่คุ้นเคย แต่ใช้เวลานานกว่า</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">คลิกเลือก Layout แล้วแจ้งใน chat ครับ</p>

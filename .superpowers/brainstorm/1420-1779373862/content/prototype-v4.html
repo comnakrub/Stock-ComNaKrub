@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock ComNaKrub — Prototype v4 (Dropdowns)</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#c9d1d9;display:flex;height:100vh;overflow:hidden;font-size:13px}
+  #sidebar{width:200px;background:#161b22;border-right:1px solid #30363d;display:flex;flex-direction:column;flex-shrink:0}
+  #sidebar .logo{padding:14px 16px;color:#58a6ff;font-weight:700;font-size:14px;border-bottom:1px solid #30363d}
+  #sidebar .logo span{font-size:10px;color:#8b949e;display:block;font-weight:400;margin-top:2px}
+  #sidebar .sec-label{padding:10px 16px 4px;font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px}
+  #sidebar .nav-item{padding:7px 16px;cursor:pointer;color:#8b949e;border-left:3px solid transparent;font-size:13px;transition:all .15s;user-select:none}
+  #sidebar .nav-item:hover{background:#1c2128;color:#c9d1d9}
+  #sidebar .nav-item.active{background:#1c2128;color:#58a6ff;border-left-color:#1f6feb}
+  #sidebar .nav-item.diy.active{color:#f0883e;border-left-color:#f0883e}
+  #sidebar .nav-item.diy{color:#f0883e}
+  #sidebar .lang-row{margin-top:auto;padding:10px 16px;border-top:1px solid #30363d;display:flex;gap:6px}
+  .lang-btn{padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;border:1px solid #30363d;background:transparent;color:#8b949e}
+  .lang-btn.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{background:#161b22;border-bottom:1px solid #30363d;padding:10px 20px;display:flex;align-items:center;gap:8px}
+  .topbar h1{font-size:15px;color:#c9d1d9;font-weight:600}
+  .spacer{flex:1}
+  .content{flex:1;overflow:auto;padding:16px}
+  .btn{padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;border:none;transition:background .15s}
+  .btn-primary{background:#1f6feb;color:#fff}.btn-primary:hover{background:#388bfd}
+  .btn-success{background:#238636;color:#fff}.btn-success:hover{background:#2ea043}
+  .btn-danger{background:#b91c1c;color:#fff;padding:3px 7px;font-size:11px}
+  .btn-warning{background:#9e6a03;color:#fff;padding:3px 7px;font-size:11px}
+  .btn-outline{background:transparent;border:1px solid #30363d;color:#8b949e}.btn-outline:hover{border-color:#58a6ff;color:#58a6ff}
+  .table-wrap{border:1px solid #30363d;border-radius:8px;overflow:auto;max-height:calc(100vh - 148px)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{background:#161b22;padding:8px 10px;text-align:left;color:#8b949e;font-weight:500;border-bottom:1px solid #30363d;white-space:nowrap;position:sticky;top:0;z-index:1}
+  td{padding:7px 10px;border-bottom:1px solid #21262d;white-space:nowrap}
+  tr:hover td{background:#1c2128}
+  tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600}
+  .ok{background:#0d4429;color:#3fb950}
+  .low{background:#5a1e02;color:#f0883e}
+  .zero{background:#3d1212;color:#f85149}
+  .cost-cell{color:#8b949e}
+  .totalcost-cell{color:#58a6ff;font-weight:500}
+  .actions{display:flex;gap:3px}
+  .page{display:none;flex-direction:column;flex:1;overflow:hidden}
+  .page.active{display:flex}
+  /* Modal */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-start;justify-content:center;padding-top:40px;overflow-y:auto}
+  .overlay.show{display:flex}
+  .modal{background:#161b22;border:1px solid #30363d;border-radius:10px;width:620px;max-width:95vw;margin-bottom:40px}
+  .mhdr{padding:14px 18px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center}
+  .mhdr h2{font-size:14px;color:#c9d1d9}
+  .mclose{cursor:pointer;background:none;border:none;color:#8b949e;font-size:18px}.mclose:hover{color:#f85149}
+  .mbody{padding:18px}
+  .mfoot{padding:14px 18px;border-top:1px solid #30363d;display:flex;justify-content:flex-end;gap:8px}
+  /* Form */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .fg{display:flex;flex-direction:column;gap:4px}
+  .fg.full{grid-column:1/-1}
+  .fg.third{grid-column:span 1}
+  label{font-size:11px;color:#8b949e;font-weight:500}
+  label .tag-dropdown{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;background:#1f3a5f;color:#58a6ff;margin-left:4px;vertical-align:middle}
+  label .tag-auto{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;background:#0d4429;color:#3fb950;margin-left:4px;vertical-align:middle}
+  input,textarea{background:#0d1117;border:1px solid #30363d;border-radius:5px;padding:7px 10px;color:#c9d1d9;font-size:12px;width:100%}
+  select{background:#0d1117;border:1px solid #30363d;border-radius:5px;padding:7px 10px;color:#c9d1d9;font-size:12px;width:100%;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+  select:focus,input:focus{outline:none;border-color:#1f6feb}
+  select option{background:#161b22;color:#c9d1d9}
+  input[readonly]{color:#58a6ff;opacity:.8;cursor:not-allowed}
+  textarea{resize:vertical;min-height:52px}
+  .form-section{font-size:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;padding:4px 0 8px;border-bottom:1px solid #21262d;margin-bottom:4px;grid-column:1/-1}
+  /* DIY */
+  .diy-body{display:flex;flex:1;overflow:hidden}
+  .diy-left{flex:1;display:flex;flex-direction:column;border-right:1px solid #30363d;overflow:hidden}
+  .diy-right{width:310px;display:flex;flex-direction:column}
+  .diy-tabs{display:flex;gap:2px;padding:10px 14px;background:#161b22;border-bottom:1px solid #30363d;flex-wrap:wrap}
+  .diy-tab{padding:4px 9px;border-radius:4px;cursor:pointer;font-size:11px;color:#8b949e;border:1px solid transparent;user-select:none}
+  .diy-tab.active{background:#1f6feb;color:#fff}
+  .diy-tab:hover:not(.active){background:#1c2128;color:#c9d1d9}
+  .diy-items{flex:1;overflow-y:auto;padding:10px 14px}
+  .diy-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;margin-bottom:5px;background:#1c2128;border:1px solid #21262d}
+  .diy-spec-hdr{padding:10px 14px;background:#161b22;border-bottom:1px solid #30363d;font-size:13px;font-weight:600}
+  .diy-spec-list{flex:1;overflow-y:auto;padding:10px 14px}
+  .spec-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid #21262d}
+  .spec-cat{color:#8b949e;font-size:11px;min-width:65px}
+  .spec-name{color:#c9d1d9;font-size:11px;flex:1;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .spec-price{color:#58a6ff;font-size:11px;font-weight:500;min-width:65px;text-align:right}
+  .spec-rm{background:none;border:none;color:#f85149;cursor:pointer;margin-left:4px;font-size:13px}
+  .diy-foot{padding:10px 14px;border-top:1px solid #30363d;background:#161b22}
+  .diy-total{display:flex;justify-content:space-between;margin-bottom:8px}
+  .diy-empty{color:#8b949e;font-size:12px;text-align:center;padding:20px}
+  .info-bar{background:#1c2128;border:1px solid #30363d;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:#8b949e}
+  .prev-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #21262d;font-size:13px}
+  .prev-total{display:flex;justify-content:space-between;padding:12px 0 0;font-size:15px;font-weight:700}
+  .prev-total span:last-child{color:#f0883e}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo">Stock ComNaKrub<span>Computer Hardware</span></div>
+  <div class="sec-label" data-en="STOCK" data-th="คลังสินค้า">STOCK</div>
+  <div class="nav-item active" onclick="go('cpu',this)">CPU</div>
+  <div class="nav-item" onclick="go('ram',this)">RAM</div>
+  <div class="nav-item" onclick="go('m2',this)">M.2</div>
+  <div class="nav-item" onclick="go('ssd',this)">SSD</div>
+  <div class="nav-item" onclick="go('mainboard',this)" data-en="Mainboard" data-th="เมนบอร์ด">Mainboard</div>
+  <div class="nav-item" onclick="go('vga',this)">VGA</div>
+  <div class="nav-item" onclick="go('psu',this)">PSU</div>
+  <div class="nav-item" onclick="go('monitor',this)" data-en="Monitor" data-th="มอนิเตอร์">Monitor</div>
+  <div class="sec-label" data-en="BUILDER" data-th="ประกอบสเปค">BUILDER</div>
+  <div class="nav-item diy" onclick="go('diy',this)" data-en="DIY PC Builder" data-th="ประกอบสเปคคอม">DIY PC Builder</div>
+  <div class="lang-row">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('th')">TH</button>
+  </div>
+</div>
+
+<div id="main">
+
+<!-- CPU -->
+<div class="page active" id="page-cpu">
+  <div class="topbar"><h1 data-en="CPU Stock" data-th="คลังสินค้า CPU">CPU Stock</h1><div class="spacer"></div>
+    <button class="btn btn-outline" data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button>
+    <button class="btn btn-primary" onclick="openModal('cpu')" data-en="+ Add CPU" data-th="+ เพิ่ม CPU">+ Add CPU</button></div>
+  <div class="content">
+    <div class="info-bar" data-en="Total Cost = Cost/unit × Total (auto calculated)" data-th="Total Cost = ต้นทุน/ชิ้น × คงเหลือ (คำนวณอัตโนมัติ)">Total Cost = Cost/unit × Total (auto calculated)</div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th data-en="Type" data-th="ชื่อสินค้า">Type</th><th>Brand</th><th>Model</th>
+        <th>Package</th><th>Socket</th><th>Codename</th>
+        <th data-en="List" data-th="รับเข้า">List</th><th data-en="Total" data-th="คงเหลือ">Total</th>
+        <th data-en="Cost/unit (฿)" data-th="ต้นทุน/ชิ้น">Cost/unit (฿)</th>
+        <th data-en="Total Cost (฿)" data-th="มูลค่ารวม (฿)">Total Cost (฿)</th>
+        <th data-en="Note" data-th="หมายเหตุ">Note</th><th data-en="Actions" data-th="จัดการ">Actions</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>INTEL I5 GEN14 14500</td><td>Intel</td><td>Core i5-14500</td><td>Box</td><td>LGA1700</td><td>Raptor Lake</td><td>10</td><td><span class="badge ok">7</span></td><td class="cost-cell">5,200</td><td class="totalcost-cell">36,400</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('cpu')" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+        <tr><td>INTEL I7 GEN14 14700K</td><td>Intel</td><td>Core i7-14700K</td><td>Box</td><td>LGA1700</td><td>Raptor Lake</td><td>5</td><td><span class="badge low">2</span></td><td class="cost-cell">7,100</td><td class="totalcost-cell">14,200</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('cpu')" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+        <tr><td>AMD RYZEN 5 7600X</td><td>AMD</td><td>Ryzen 5 7600X</td><td>Tray</td><td>AM5</td><td>Raphael</td><td>8</td><td><span class="badge ok">5</span></td><td class="cost-cell">5,500</td><td class="totalcost-cell">27,500</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('cpu')" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+        <tr><td>AMD RYZEN 7 7700X</td><td>AMD</td><td>Ryzen 7 7700X</td><td>Box</td><td>AM5</td><td>Raphael</td><td>3</td><td><span class="badge zero">0</span></td><td class="cost-cell">8,200</td><td class="totalcost-cell">0</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('cpu')" data-en="Edit" data-th="แก้ไข">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- RAM -->
+<div class="page" id="page-ram">
+  <div class="topbar"><h1 data-en="RAM Stock" data-th="คลังสินค้า RAM">RAM Stock</h1><div class="spacer"></div>
+    <button class="btn btn-outline" data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button>
+    <button class="btn btn-primary" onclick="openModal('ram')" data-en="+ Add RAM" data-th="+ เพิ่ม RAM">+ Add RAM</button></div>
+  <div class="content">
+    <div class="info-bar" data-en="Total Cost = Cost/unit × Total" data-th="Total Cost = ต้นทุน/ชิ้น × คงเหลือ">Total Cost = Cost/unit × Total</div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Type</th><th>Brand</th><th>Color</th><th>RGB</th><th>Package</th><th>Model</th>
+        <th>Mem Type</th><th>BUS</th><th>Size</th>
+        <th data-en="List" data-th="รับเข้า">List</th><th data-en="Total" data-th="คงเหลือ">Total</th>
+        <th data-en="Cost/unit (฿)" data-th="ต้นทุน/ชิ้น">Cost/unit (฿)</th>
+        <th data-en="Total Cost (฿)" data-th="มูลค่ารวม (฿)">Total Cost (฿)</th>
+        <th>Note</th><th data-en="Actions" data-th="จัดการ">Actions</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>DDR5 32GB BUS5600 KINGSTON FURY</td><td>Kingston</td><td>Black</td><td>No</td><td>Retail</td><td>KF556C36BBK2-32</td><td>DDR5</td><td>5600</td><td>32GB</td><td>15</td><td><span class="badge ok">10</span></td><td class="cost-cell">2,600</td><td class="totalcost-cell">26,000</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('ram')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+        <tr><td>DDR5 32GB BUS6000 CORSAIR RGB</td><td>Corsair</td><td>Black</td><td>Yes</td><td>Retail</td><td>CMH32GX5M2B6000C30</td><td>DDR5</td><td>6000</td><td>32GB</td><td>10</td><td><span class="badge ok">8</span></td><td class="cost-cell">3,100</td><td class="totalcost-cell">24,800</td><td>RGB</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('ram')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+        <tr><td>DDR4 16GB BUS3200 G.SKILL RIPJAWS</td><td>G.SKILL</td><td>Red</td><td>No</td><td>Retail</td><td>F4-3200C16D-16GVK</td><td>DDR4</td><td>3200</td><td>16GB</td><td>20</td><td><span class="badge ok">12</span></td><td class="cost-cell">1,300</td><td class="totalcost-cell">15,600</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('ram')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- M.2 / SSD / Mainboard / VGA / PSU / Monitor — same pattern -->
+<div class="page" id="page-m2">
+  <div class="topbar"><h1>M.2 Stock</h1><div class="spacer"></div><button class="btn btn-outline">Import Excel</button><button class="btn btn-primary" onclick="openModal('m2')">+ Add M.2</button></div>
+  <div class="content"><div class="info-bar">Total Cost = Cost/unit × Total</div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Brand</th><th>Package</th><th>Model</th><th>M.2 Type</th><th>Interface</th><th>Capacity</th><th data-en="List" data-th="รับเข้า">List</th><th data-en="Total" data-th="คงเหลือ">Total</th><th>Cost/unit (฿)</th><th>Total Cost (฿)</th><th>Note</th><th>Actions</th></tr></thead><tbody>
+    <tr><td>SAMSUNG 990 PRO 1TB NVME</td><td>Samsung</td><td>Retail</td><td>MZ-V9P1T0BW</td><td>2280</td><td>PCIe 4.0 NVMe</td><td>1TB</td><td>12</td><td><span class="badge ok">8</span></td><td class="cost-cell">2,300</td><td class="totalcost-cell">18,400</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('m2')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+    <tr><td>WD BLACK SN850X 2TB NVME</td><td>WD</td><td>Retail</td><td>WDS200T2X0E</td><td>2280</td><td>PCIe 4.0 NVMe</td><td>2TB</td><td>6</td><td><span class="badge ok">4</span></td><td class="cost-cell">4,200</td><td class="totalcost-cell">16,800</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('m2')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr>
+  </tbody></table></div></div>
+</div>
+<div class="page" id="page-ssd"><div class="topbar"><h1>SSD Stock</h1><div class="spacer"></div><button class="btn btn-outline">Import Excel</button><button class="btn btn-primary" onclick="openModal('ssd')">+ Add SSD</button></div><div class="content"><div class="info-bar">Total Cost = Cost/unit × Total</div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Brand</th><th>Package</th><th>Model</th><th>Interface</th><th>Capacity</th><th>List</th><th>Total</th><th>Cost/unit (฿)</th><th>Total Cost (฿)</th><th>Note</th><th>Actions</th></tr></thead><tbody><tr><td>SAMSUNG 870 EVO 1TB SATA</td><td>Samsung</td><td>Retail</td><td>MZ-77E1T0BW</td><td>SATA III</td><td>1TB</td><td>15</td><td><span class="badge ok">10</span></td><td class="cost-cell">1,800</td><td class="totalcost-cell">18,000</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('ssd')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr></tbody></table></div></div></div>
+<div class="page" id="page-mainboard"><div class="topbar"><h1 data-en="Mainboard Stock" data-th="คลังสินค้า เมนบอร์ด">Mainboard Stock</h1><div class="spacer"></div><button class="btn btn-outline">Import Excel</button><button class="btn btn-primary" onclick="openModal('mainboard')">+ Add Mainboard</button></div><div class="content"><div class="info-bar">Total Cost = Cost/unit × Total</div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Brand</th><th>Model</th><th>Size</th><th>Socket</th><th>Chipset</th><th>Slot RAM</th><th>Support RAM</th><th>List</th><th>Total</th><th>Cost/unit (฿)</th><th>Total Cost (฿)</th><th>Note</th><th>Actions</th></tr></thead><tbody><tr><td>ASUS ROG STRIX B760-F LGA1700</td><td>ASUS</td><td>ROG STRIX B760-F</td><td>ATX</td><td>LGA1700</td><td>B760</td><td>4</td><td>DDR5 128GB</td><td>5</td><td><span class="badge ok">3</span></td><td class="cost-cell">5,100</td><td class="totalcost-cell">15,300</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('mainboard')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr><tr><td>MSI MAG X670E TOMAHAWK WIFI AM5</td><td>MSI</td><td>MAG X670E TOMAHAWK</td><td>ATX</td><td>AM5</td><td>X670E</td><td>4</td><td>DDR5 128GB</td><td>4</td><td><span class="badge ok">2</span></td><td class="cost-cell">7,000</td><td class="totalcost-cell">14,000</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('mainboard')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr></tbody></table></div></div></div>
+<div class="page" id="page-vga"><div class="topbar"><h1 data-en="VGA Stock" data-th="คลังสินค้า การ์ดจอ">VGA Stock</h1><div class="spacer"></div><button class="btn btn-outline">Import Excel</button><button class="btn btn-primary" onclick="openModal('vga')">+ Add VGA</button></div><div class="content"><div class="info-bar">Total Cost = Cost/unit × Total</div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Brand</th><th>Model</th><th>Chipset</th><th>FAN</th><th>Series</th><th>GPU Model</th><th>Size (GB)</th><th>List</th><th>Total</th><th>Cost/unit (฿)</th><th>Total Cost (฿)</th><th>Note</th><th>Actions</th></tr></thead><tbody><tr><td>RTX 4060 8GB ASUS DUAL OC</td><td>ASUS</td><td>DUAL-RTX4060-O8G</td><td>NVIDIA</td><td>2</td><td>DUAL</td><td>RTX 4060</td><td>8</td><td>8</td><td><span class="badge ok">5</span></td><td class="cost-cell">9,800</td><td class="totalcost-cell">49,000</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('vga')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr><tr><td>RX 7600 8GB SAPPHIRE PULSE</td><td>Sapphire</td><td>PULSE RX 7600</td><td>AMD</td><td>2</td><td>PULSE</td><td>RX 7600</td><td>8</td><td>6</td><td><span class="badge ok">4</span></td><td class="cost-cell">7,800</td><td class="totalcost-cell">31,200</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('vga')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr></tbody></table></div></div></div>
+<div class="page" id="page-psu"><div class="topbar"><h1>PSU Stock</h1><div class="spacer"></div><button class="btn btn-outline">Import Excel</button><button class="btn btn-primary" onclick="openModal('psu')">+ Add PSU</button></div><div class="content"><div class="info-bar">Total Cost = Cost/unit × Total</div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Brand</th><th>Model</th><th>Certification</th><th>Watt</th><th>List</th><th>Total</th><th>Cost/unit (฿)</th><th>Total Cost (฿)</th><th>Note</th><th>Actions</th></tr></thead><tbody><tr><td>CORSAIR RM750x 750W 80+ GOLD</td><td>Corsair</td><td>RM750x</td><td>80+ Gold</td><td>750W</td><td>10</td><td><span class="badge ok">7</span></td><td class="cost-cell">3,000</td><td class="totalcost-cell">21,000</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('psu')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr><tr><td>SEASONIC FOCUS GX-850 80+ GOLD</td><td>Seasonic</td><td>FOCUS GX-850</td><td>80+ Gold</td><td>850W</td><td>6</td><td><span class="badge ok">4</span></td><td class="cost-cell">4,200</td><td class="totalcost-cell">16,800</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('psu')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr></tbody></table></div></div></div>
+<div class="page" id="page-monitor"><div class="topbar"><h1 data-en="Monitor Stock" data-th="คลังสินค้า มอนิเตอร์">Monitor Stock</h1><div class="spacer"></div><button class="btn btn-outline">Import Excel</button><button class="btn btn-primary" onclick="openModal('monitor')">+ Add Monitor</button></div><div class="content"><div class="info-bar">Total Cost = Cost/unit × Total</div><div class="table-wrap"><table><thead><tr><th>Type</th><th>Brand</th><th>Model</th><th>Size</th><th>Color</th><th>Panel</th><th>Resolution</th><th>Refresh</th><th>List</th><th>Total</th><th>Cost/unit (฿)</th><th>Total Cost (฿)</th><th>Note</th><th>Actions</th></tr></thead><tbody><tr><td>LG 27" 4K IPS 144HZ</td><td>LG</td><td>27GP850-B</td><td>27"</td><td>Black</td><td>IPS</td><td>3840×2160</td><td>144Hz</td><td>6</td><td><span class="badge ok">4</span></td><td class="cost-cell">9,000</td><td class="totalcost-cell">36,000</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('monitor')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr><tr><td>ASUS TUF 24" FHD 165HZ</td><td>ASUS</td><td>VG249Q1A</td><td>24"</td><td>Black</td><td>IPS</td><td>1920×1080</td><td>165Hz</td><td>10</td><td><span class="badge ok">7</span></td><td class="cost-cell">4,200</td><td class="totalcost-cell">29,400</td><td>—</td><td><div class="actions"><button class="btn btn-warning" onclick="openModal('monitor')">Edit</button><button class="btn btn-danger">Del</button></div></td></tr></tbody></table></div></div></div>
+
+<!-- DIY -->
+<div class="page" id="page-diy">
+  <div class="topbar"><h1 data-en="DIY PC Builder" data-th="ประกอบสเปคคอม">DIY PC Builder</h1><div class="spacer"></div>
+    <button class="btn btn-outline" onclick="clearSpec()" data-en="Clear All" data-th="ล้างทั้งหมด">Clear All</button>
+    <button class="btn btn-success" onclick="showPreview()" data-en="Preview & Confirm" data-th="ดูสรุปและยืนยัน">Preview &amp; Confirm</button></div>
+  <div class="diy-body">
+    <div class="diy-left">
+      <div class="diy-tabs">
+        <div class="diy-tab active" onclick="setTab(this,'ti-cpu')">CPU</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-ram')">RAM</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-m2')">M.2</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-ssd')">SSD</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-mb')">Mainboard</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-vga')">VGA</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-psu')">PSU</div>
+        <div class="diy-tab" onclick="setTab(this,'ti-mon')">Monitor</div>
+      </div>
+      <div class="diy-items">
+        <div id="ti-cpu">
+          <div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">INTEL I5 GEN14 14500</div><div style="font-size:10px;color:#8b949e">Stock: 7 | Cost: ฿5,200/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿5,200</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('CPU','INTEL I5 GEN14 14500',5200)">+</button></div></div>
+          <div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">INTEL I7 GEN14 14700K</div><div style="font-size:10px;color:#8b949e">Stock: 2 | Cost: ฿7,100/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿7,100</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('CPU','INTEL I7 GEN14 14700K',7100)">+</button></div></div>
+          <div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">AMD RYZEN 5 7600X</div><div style="font-size:10px;color:#8b949e">Stock: 5 | Cost: ฿5,500/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿5,500</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('CPU','AMD RYZEN 5 7600X',5500)">+</button></div></div>
+        </div>
+        <div id="ti-ram" style="display:none">
+          <div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">DDR5 32GB BUS5600 KINGSTON FURY</div><div style="font-size:10px;color:#8b949e">Stock: 10 | Cost: ฿2,600/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿2,600</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('RAM','DDR5 32GB BUS5600 KINGSTON',2600)">+</button></div></div>
+          <div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">DDR4 16GB BUS3200 G.SKILL</div><div style="font-size:10px;color:#8b949e">Stock: 12 | Cost: ฿1,300/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿1,300</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('RAM','DDR4 16GB BUS3200 G.SKILL',1300)">+</button></div></div>
+        </div>
+        <div id="ti-m2" style="display:none"><div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">SAMSUNG 990 PRO 1TB NVME</div><div style="font-size:10px;color:#8b949e">Stock: 8 | Cost: ฿2,300/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿2,300</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('M.2','SAMSUNG 990 PRO 1TB',2300)">+</button></div></div></div>
+        <div id="ti-ssd" style="display:none"><div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">SAMSUNG 870 EVO 1TB SATA</div><div style="font-size:10px;color:#8b949e">Stock: 10 | Cost: ฿1,800/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿1,800</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('SSD','SAMSUNG 870 EVO 1TB',1800)">+</button></div></div></div>
+        <div id="ti-mb" style="display:none"><div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">ASUS ROG STRIX B760-F LGA1700</div><div style="font-size:10px;color:#8b949e">Stock: 3 | Cost: ฿5,100/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿5,100</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('Mainboard','ASUS ROG STRIX B760-F',5100)">+</button></div></div></div>
+        <div id="ti-vga" style="display:none"><div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">RTX 4060 8GB ASUS DUAL OC</div><div style="font-size:10px;color:#8b949e">Stock: 5 | Cost: ฿9,800/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿9,800</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('VGA','RTX 4060 8GB ASUS DUAL',9800)">+</button></div></div></div>
+        <div id="ti-psu" style="display:none"><div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">CORSAIR RM750x 750W 80+ GOLD</div><div style="font-size:10px;color:#8b949e">Stock: 7 | Cost: ฿3,000/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿3,000</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('PSU','CORSAIR RM750x 750W',3000)">+</button></div></div></div>
+        <div id="ti-mon" style="display:none"><div class="diy-item"><div><div style="font-size:12px;color:#c9d1d9">LG 27" 4K IPS 144HZ</div><div style="font-size:10px;color:#8b949e">Stock: 4 | Cost: ฿9,000/unit</div></div><div style="display:flex;align-items:center;gap:6px"><span style="color:#58a6ff;font-weight:500">฿9,000</span><button class="btn btn-success" style="padding:3px 8px" onclick="addSpec('Monitor','LG 27\" 4K IPS 144Hz',9000)">+</button></div></div></div>
+      </div>
+    </div>
+    <div class="diy-right">
+      <div class="diy-spec-hdr" data-en="Selected Spec" data-th="สเปคที่เลือก">Selected Spec</div>
+      <div class="diy-spec-list" id="spec-list"><div class="diy-empty">No items selected</div></div>
+      <div class="diy-foot">
+        <div class="diy-total"><span style="color:#8b949e;font-size:12px" data-en="Total Cost" data-th="ต้นทุนรวม">Total Cost</span><span style="color:#f0883e;font-size:17px;font-weight:700" id="total-val">฿0</span></div>
+        <button class="btn btn-success" style="width:100%;padding:8px" onclick="showPreview()" data-en="Preview & Confirm" data-th="ดูสรุปและยืนยัน">Preview &amp; Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ══════════════════════════════════════
+     ADD/EDIT MODALS — one per category
+     ══════════════════════════════════════ -->
+
+<!-- CPU Modal -->
+<div class="overlay" id="m-cpu">
+  <div class="modal">
+    <div class="mhdr"><h2 data-en="Add / Edit CPU" data-th="เพิ่ม / แก้ไข CPU">Add / Edit CPU</h2><button class="mclose" onclick="cls('m-cpu')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label data-en="Type (Product Name)" data-th="ชื่อสินค้า">Type (Product Name)</label><input placeholder="e.g. INTEL I5 GEN14 14500"></div>
+      <div class="fg"><label>Brand</label><input placeholder="Intel / AMD"></div>
+      <div class="fg"><label>Model</label><input placeholder="Core i5-14500"></div>
+      <div class="fg"><label>Package <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>Box</option><option>Tray</option><option>OEM</option></select></div>
+      <div class="fg"><label>Socket <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>LGA1700</option><option>LGA1200</option><option>AM5</option><option>AM4</option></select></div>
+      <div class="fg"><label>Codename</label><input placeholder="Raptor Lake / Raphael"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label data-en="List (Stock In)" data-th="ยอดรับเข้า">List (Stock In)</label><input type="number" placeholder="0" oninput="calcTotal(this)"></div>
+      <div class="fg"><label data-en="Total (On Hand)" data-th="คงเหลือ">Total (On Hand)</label><input type="number" placeholder="0" id="cpu-total"></div>
+      <div class="fg"><label data-en="Cost/unit (฿)" data-th="ต้นทุน/ชิ้น (฿)">Cost/unit (฿)</label><input type="number" placeholder="0" oninput="calcTotalCost('cpu')"></div>
+      <div class="fg"><label data-en="Total Cost (฿)" data-th="มูลค่ารวม (฿)">Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly id="cpu-totalcost" placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-cpu')" data-en="Cancel" data-th="ยกเลิก">Cancel</button><button class="btn btn-primary" data-en="Save" data-th="บันทึก">Save</button></div>
+  </div>
+</div>
+
+<!-- RAM Modal -->
+<div class="overlay" id="m-ram">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit RAM</h2><button class="mclose" onclick="cls('m-ram')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder="e.g. DDR5 32GB BUS5600 KINGSTON FURY"></div>
+      <div class="fg"><label>Brand</label><input placeholder="Kingston / Corsair / G.SKILL"></div>
+      <div class="fg"><label>Model</label><input placeholder="KF556C36BBK2-32"></div>
+      <div class="fg"><label>Color <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>Black</option><option>White</option><option>Red</option><option>Blue</option><option>Silver</option></select></div>
+      <div class="fg"><label>RGB <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>Yes</option><option>No</option></select></div>
+      <div class="fg"><label>Package <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>Retail</option><option>Tray</option><option>OEM</option></select></div>
+      <div class="fg"><label>Memory Type <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>DDR4</option><option>DDR5</option></select></div>
+      <div class="fg"><label>BUS (MHz)</label><input type="number" placeholder="3200 / 5600 / 6000"></div>
+      <div class="fg"><label>Memory Size</label><input placeholder="8GB / 16GB / 32GB"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-ram')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- M.2 Modal -->
+<div class="overlay" id="m-m2">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit M.2</h2><button class="mclose" onclick="cls('m-m2')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder="e.g. SAMSUNG 990 PRO 1TB NVME"></div>
+      <div class="fg"><label>Brand</label><input placeholder="Samsung / WD / Kingston"></div>
+      <div class="fg"><label>Model</label><input placeholder="MZ-V9P1T0BW"></div>
+      <div class="fg"><label>Package <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>Retail</option><option>Tray</option><option>OEM</option></select></div>
+      <div class="fg"><label>M.2 Type <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>2280</option><option>2260</option><option>2242</option></select></div>
+      <div class="fg"><label>Interface <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>PCIe 4.0 NVMe</option><option>PCIe 3.0 NVMe</option><option>SATA</option></select></div>
+      <div class="fg"><label>Capacity</label><input placeholder="500GB / 1TB / 2TB"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-m2')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- SSD Modal -->
+<div class="overlay" id="m-ssd">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit SSD</h2><button class="mclose" onclick="cls('m-ssd')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder="e.g. SAMSUNG 870 EVO 1TB SATA"></div>
+      <div class="fg"><label>Brand</label><input placeholder="Samsung / WD / Crucial"></div>
+      <div class="fg"><label>Model</label><input placeholder="MZ-77E1T0BW"></div>
+      <div class="fg"><label>Package <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>Retail</option><option>Tray</option><option>OEM</option></select></div>
+      <div class="fg"><label>Interface <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>SATA III</option><option>PCIe 3.0</option><option>PCIe 4.0</option></select></div>
+      <div class="fg"><label>Capacity</label><input placeholder="500GB / 1TB / 2TB"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-ssd')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- Mainboard Modal -->
+<div class="overlay" id="m-mainboard">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit Mainboard</h2><button class="mclose" onclick="cls('m-mainboard')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder="e.g. ASUS ROG STRIX B760-F LGA1700"></div>
+      <div class="fg"><label>Brand</label><input placeholder="ASUS / MSI / Gigabyte / ASRock"></div>
+      <div class="fg"><label>Model</label><input placeholder="ROG STRIX B760-F"></div>
+      <div class="fg"><label>Size <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>ATX</option><option>mATX</option><option>ITX</option><option>E-ATX</option></select></div>
+      <div class="fg"><label>Socket <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>LGA1700</option><option>LGA1200</option><option>AM5</option><option>AM4</option></select></div>
+      <div class="fg"><label>Chipset <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>H610</option><option>B660</option><option>B760</option><option>Z690</option><option>Z790</option><option>A620</option><option>B650</option><option>X670</option><option>X670E</option></select></div>
+      <div class="fg"><label>Slot RAM</label><input type="number" placeholder="2 / 4"></div>
+      <div class="fg"><label>Support RAM</label><input placeholder="DDR5 128GB / DDR4 128GB"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-mainboard')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- VGA Modal -->
+<div class="overlay" id="m-vga">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit VGA</h2><button class="mclose" onclick="cls('m-vga')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder="e.g. RTX 4060 8GB ASUS DUAL OC"></div>
+      <div class="fg"><label>Brand</label><input placeholder="ASUS / MSI / Sapphire / Gigabyte"></div>
+      <div class="fg"><label>Model</label><input placeholder="DUAL-RTX4060-O8G"></div>
+      <div class="fg"><label>Chipset <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>NVIDIA</option><option>AMD</option><option>Intel</option></select></div>
+      <div class="fg"><label>FAN <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>1</option><option>2</option><option>3</option></select></div>
+      <div class="fg"><label>Series</label><input placeholder="DUAL / VENTUS / ROG STRIX / PULSE"></div>
+      <div class="fg"><label>GPU Model</label><input placeholder="RTX 4060 / RX 7600"></div>
+      <div class="fg"><label>Size (GB) — VRAM</label><input type="number" placeholder="8 / 12 / 16 / 24"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-vga')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- PSU Modal -->
+<div class="overlay" id="m-psu">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit PSU</h2><button class="mclose" onclick="cls('m-psu')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder="e.g. CORSAIR RM750x 750W 80+ GOLD"></div>
+      <div class="fg"><label>Brand</label><input placeholder="Corsair / Seasonic / Cooler Master"></div>
+      <div class="fg"><label>Model</label><input placeholder="RM750x"></div>
+      <div class="fg"><label>Certification <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>80+ White</option><option>80+ Bronze</option><option>80+ Silver</option><option>80+ Gold</option><option>80+ Platinum</option><option>80+ Titanium</option></select></div>
+      <div class="fg"><label>Watt</label><input type="number" placeholder="550 / 650 / 750 / 850 / 1000"></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-psu')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- Monitor Modal -->
+<div class="overlay" id="m-monitor">
+  <div class="modal">
+    <div class="mhdr"><h2>Add / Edit Monitor</h2><button class="mclose" onclick="cls('m-monitor')">✕</button></div>
+    <div class="mbody"><div class="form-grid">
+      <div class="form-section">Product Info</div>
+      <div class="fg full"><label>Type (Product Name)</label><input placeholder='e.g. LG 27" 4K IPS 144HZ'></div>
+      <div class="fg"><label>Brand</label><input placeholder="LG / ASUS / Samsung / BenQ"></div>
+      <div class="fg"><label>Model</label><input placeholder="27GP850-B"></div>
+      <div class="fg"><label>Size</label><input placeholder='24" / 27" / 32"'></div>
+      <div class="fg"><label>Color</label><input placeholder="Black / White / Grey"></div>
+      <div class="fg"><label>Panel Type <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>IPS</option><option>VA</option><option>TN</option><option>OLED</option></select></div>
+      <div class="fg"><label>Max Resolution <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>1920×1080</option><option>2560×1080</option><option>2560×1440</option><option>3440×1440</option><option>3840×2160</option></select></div>
+      <div class="fg"><label>Refresh Rate <span class="tag-dropdown">dropdown</span></label>
+        <select><option value="">-- Select --</option><option>60Hz</option><option>75Hz</option><option>100Hz</option><option>144Hz</option><option>165Hz</option><option>180Hz</option><option>240Hz</option><option>360Hz</option></select></div>
+      <div class="form-section">Stock & Cost</div>
+      <div class="fg"><label>List (Stock In)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total (On Hand)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Cost/unit (฿)</label><input type="number" placeholder="0"></div>
+      <div class="fg"><label>Total Cost (฿) <span class="tag-auto">auto</span></label><input type="number" readonly placeholder="คำนวณอัตโนมัติ"></div>
+      <div class="fg full"><label>Note</label><textarea placeholder="Optional..."></textarea></div>
+    </div></div>
+    <div class="mfoot"><button class="btn btn-outline" onclick="cls('m-monitor')">Cancel</button><button class="btn btn-primary">Save</button></div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="overlay" id="m-preview">
+  <div class="modal">
+    <div class="mhdr"><h2 data-en="Spec Preview" data-th="สรุปสเปค">Spec Preview</h2><button class="mclose" onclick="cls('m-preview')">✕</button></div>
+    <div class="mbody" id="preview-body"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="cls('m-preview')" data-en="Cancel" data-th="ยกเลิก">Cancel</button>
+      <button class="btn btn-success" onclick="doConfirm()" data-en="✓ Confirm & Deduct Stock" data-th="✓ ยืนยันและตัด Stock">✓ Confirm &amp; Deduct Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmed Modal -->
+<div class="overlay" id="m-confirmed">
+  <div class="modal">
+    <div class="mhdr"><h2 style="color:#3fb950" data-en="✓ Stock Deducted" data-th="✓ ตัด Stock สำเร็จ">✓ Stock Deducted</h2><button class="mclose" onclick="cls('m-confirmed')">✕</button></div>
+    <div class="mbody">
+      <p style="color:#8b949e;font-size:12px;margin-bottom:12px" data-en="Stock deducted. Click Restore if customer cancels." data-th="ตัด Stock แล้ว หากลูกค้ายกเลิก กด คืน Stock">Stock deducted. Click Restore if customer cancels.</p>
+      <div id="confirmed-body"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-danger" style="padding:6px 12px;font-size:12px" onclick="doRestore()" data-en="↩ Restore Stock" data-th="↩ คืน Stock">↩ Restore Stock</button>
+      <button class="btn btn-primary" onclick="cls('m-confirmed');clearSpec()" data-en="Done" data-th="เสร็จสิ้น">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const modalMap = {cpu:'m-cpu',ram:'m-ram',m2:'m-m2',ssd:'m-ssd',mainboard:'m-mainboard',vga:'m-vga',psu:'m-psu',monitor:'m-monitor'};
+let lang='en', spec=[];
+function go(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active')}
+function cls(id){document.getElementById(id).classList.remove('show')}
+function opn(id){document.getElementById(id).classList.add('show')}
+function openModal(cat){opn(modalMap[cat]||'m-'+cat)}
+function setLang(l){lang=l;document.querySelectorAll('[data-en]').forEach(el=>{el.textContent=l==='en'?el.dataset.en:el.dataset.th});document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active')}
+function setTab(el,id){document.querySelectorAll('.diy-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.diy-items>div').forEach(d=>d.style.display='none');document.getElementById(id).style.display='block'}
+function addSpec(cat,name,cost){const ex=spec.find(i=>i.cat===cat);if(ex){ex.name=name;ex.cost=cost;}else spec.push({cat,name,cost});renderSpec()}
+function removeSpec(cat){spec=spec.filter(i=>i.cat!==cat);renderSpec()}
+function clearSpec(){spec=[];renderSpec()}
+function renderSpec(){
+  const list=document.getElementById('spec-list');
+  const total=spec.reduce((s,i)=>s+i.cost,0);
+  document.getElementById('total-val').textContent='฿'+total.toLocaleString();
+  if(!spec.length){list.innerHTML='<div class="diy-empty">'+(lang==='en'?'No items selected':'ยังไม่มีรายการ')+'</div>';return}
+  list.innerHTML=spec.map(i=>`<div class="spec-row"><span class="spec-cat">${i.cat}</span><span class="spec-name" title="${i.name}">${i.name}</span><span class="spec-price">฿${i.cost.toLocaleString()}</span><button class="spec-rm" onclick="removeSpec('${i.cat}')">✕</button></div>`).join('')
+}
+function showPreview(){
+  if(!spec.length){alert(lang==='en'?'Please select at least one item':'กรุณาเลือกอย่างน้อย 1 รายการ');return}
+  const total=spec.reduce((s,i)=>s+i.cost,0);
+  document.getElementById('preview-body').innerHTML=spec.map(i=>`<div class="prev-row"><span style="color:#8b949e">${i.cat}</span><span>${i.name}</span><span style="color:#58a6ff;font-weight:500">฿${i.cost.toLocaleString()}</span></div>`).join('')+`<div class="prev-total"><span>${lang==='en'?'Total Cost':'ต้นทุนรวม'}</span><span>฿${total.toLocaleString()}</span></div>`;
+  opn('m-preview')
+}
+function doConfirm(){
+  const total=spec.reduce((s,i)=>s+i.cost,0);
+  document.getElementById('confirmed-body').innerHTML=spec.map(i=>`<div class="prev-row"><span style="color:#8b949e">${i.cat}</span><span>${i.name}</span><span style="color:#58a6ff;font-weight:500">฿${i.cost.toLocaleString()}</span></div>`).join('')+`<div class="prev-total"><span>${lang==='en'?'Total Cost':'ต้นทุนรวม'}</span><span>฿${total.toLocaleString()}</span></div>`;
+  cls('m-preview');opn('m-confirmed')
+}
+function doRestore(){cls('m-confirmed');clearSpec();alert(lang==='en'?'Stock restored!':'คืน Stock เรียบร้อยแล้ว!')}
+</script>
+</body>
+</html>

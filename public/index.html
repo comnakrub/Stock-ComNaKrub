@@ -1,2 +1,129 @@
 <!DOCTYPE html>
-<html><body><h1>Stock ComNaKrub — coming soon</h1></body></html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock ComNaKrub</title>
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo">Stock ComNaKrub<span>Computer Hardware</span></div>
+  <div class="sec-label" data-en="STOCK" data-th="คลังสินค้า">STOCK</div>
+  <div class="nav-item active" data-page="cpu">CPU</div>
+  <div class="nav-item" data-page="ram">RAM</div>
+  <div class="nav-item" data-page="m2">M.2</div>
+  <div class="nav-item" data-page="ssd">SSD</div>
+  <div class="nav-item" data-page="mainboard" data-en="Mainboard" data-th="เมนบอร์ด">Mainboard</div>
+  <div class="nav-item" data-page="vga">VGA</div>
+  <div class="nav-item" data-page="psu">PSU</div>
+  <div class="nav-item" data-page="monitor" data-en="Monitor" data-th="มอนิเตอร์">Monitor</div>
+  <div class="sec-label" data-en="BUILDER" data-th="ประกอบสเปค">BUILDER</div>
+  <div class="nav-item diy" data-page="diy" data-en="DIY PC Builder" data-th="ประกอบสเปคคอม">DIY PC Builder</div>
+  <div class="lang-row">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('th')">TH</button>
+  </div>
+</div>
+
+<div id="main">
+  <!-- Stock pages — one per category, rendered by stock.js -->
+  <div class="page active" id="page-cpu"></div>
+  <div class="page" id="page-ram"></div>
+  <div class="page" id="page-m2"></div>
+  <div class="page" id="page-ssd"></div>
+  <div class="page" id="page-mainboard"></div>
+  <div class="page" id="page-vga"></div>
+  <div class="page" id="page-psu"></div>
+  <div class="page" id="page-monitor"></div>
+
+  <!-- DIY page — rendered by diy.js -->
+  <div class="page" id="page-diy"></div>
+</div>
+
+<!-- Modals — populated dynamically by JS -->
+<div class="overlay" id="modal-item">
+  <div class="modal">
+    <div class="mhdr">
+      <h2 id="modal-title">Add Item</h2>
+      <button class="mclose" onclick="closeModal('modal-item')">✕</button>
+    </div>
+    <div class="mbody" id="modal-body"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeModal('modal-item')"
+              data-en="Cancel" data-th="ยกเลิก">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem()"
+              data-en="Save" data-th="บันทึก">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-import">
+  <div class="modal">
+    <div class="mhdr">
+      <h2 data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</h2>
+      <button class="mclose" onclick="closeModal('modal-import')">✕</button>
+    </div>
+    <div class="mbody">
+      <p style="color:#8b949e;font-size:12px;margin-bottom:12px"
+         data-en="Headers must match field names exactly."
+         data-th="ชื่อคอลัมน์ต้องตรงกับชื่อฟิลด์">Headers must match field names exactly.</p>
+      <input type="file" id="import-file" accept=".xlsx" style="margin-bottom:10px">
+      <div id="import-result" style="font-size:12px;color:#3fb950;margin-top:8px"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="downloadTemplate()"
+              data-en="Download Template" data-th="ดาวน์โหลดเทมเพลต">Download Template</button>
+      <button class="btn btn-primary" onclick="doImport()"
+              data-en="Import" data-th="นำเข้า">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-diy-preview">
+  <div class="modal">
+    <div class="mhdr">
+      <h2 data-en="Spec Preview" data-th="สรุปสเปค">Spec Preview</h2>
+      <button class="mclose" onclick="closeModal('modal-diy-preview')">✕</button>
+    </div>
+    <div class="mbody" id="diy-preview-body"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeModal('modal-diy-preview')"
+              data-en="Cancel" data-th="ยกเลิก">Cancel</button>
+      <button class="btn btn-success" onclick="confirmOrder()"
+              data-en="✓ Confirm &amp; Deduct Stock" data-th="✓ ยืนยันและตัด Stock">
+        ✓ Confirm &amp; Deduct Stock
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-diy-confirmed">
+  <div class="modal">
+    <div class="mhdr">
+      <h2 style="color:#3fb950" data-en="✓ Stock Deducted" data-th="✓ ตัด Stock สำเร็จ">✓ Stock Deducted</h2>
+      <button class="mclose" onclick="closeModal('modal-diy-confirmed')">✕</button>
+    </div>
+    <div class="mbody">
+      <p style="color:#8b949e;font-size:12px;margin-bottom:12px"
+         data-en="Stock has been deducted. Click Restore if the customer cancels."
+         data-th="ตัด Stock แล้ว กด คืน Stock หากลูกค้ายกเลิก">
+        Stock has been deducted. Click Restore if the customer cancels.
+      </p>
+      <div id="diy-confirmed-body"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-danger" style="padding:6px 12px;font-size:12px" onclick="restoreOrder()"
+              data-en="↩ Restore Stock" data-th="↩ คืน Stock">↩ Restore Stock</button>
+      <button class="btn btn-primary" onclick="diyDone()"
+              data-en="Done" data-th="เสร็จสิ้น">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/stock.js"></script>
+<script src="/js/diy.js"></script>
+</body>
+</html>

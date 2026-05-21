@@ -1,0 +1,118 @@
+CREATE TABLE IF NOT EXISTS cpu (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Model TEXT,
+  Package TEXT,
+  Socket TEXT,
+  Codename TEXT,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS ram (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Color TEXT,
+  RGB TEXT,
+  Package TEXT,
+  Model TEXT,
+  MemoryType TEXT,
+  BUS INTEGER,
+  MemorySize TEXT,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS m2 (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Package TEXT,
+  Model TEXT,
+  M2Type TEXT,
+  Interface TEXT,
+  Capacity TEXT,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS ssd (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Package TEXT,
+  Model TEXT,
+  Interface TEXT,
+  Capacity TEXT,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS mainboard (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Model TEXT,
+  Size TEXT,
+  Socket TEXT,
+  Chipset TEXT,
+  SlotRAM INTEGER,
+  SupportRAM TEXT,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS vga (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Model TEXT,
+  Chipset TEXT,
+  FAN INTEGER,
+  Series TEXT,
+  GPUModel TEXT,
+  SizeGB INTEGER,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS psu (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Model TEXT,
+  Certification TEXT,
+  Watt INTEGER,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS monitor (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Type TEXT NOT NULL,
+  Brand TEXT,
+  Model TEXT,
+  Size TEXT,
+  Color TEXT,
+  PanelType TEXT,
+  MaxResolution TEXT,
+  RefreshRate TEXT,
+  Total INTEGER DEFAULT 0,
+  Cost REAL DEFAULT 0,
+  Note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS diy_transactions (
+  id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL,
+  items TEXT NOT NULL
+);

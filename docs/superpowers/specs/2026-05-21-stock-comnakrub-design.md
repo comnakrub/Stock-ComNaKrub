@@ -213,6 +213,8 @@ Each of the 8 categories follows an identical pattern:
 | Category | Field | Options |
 |----------|-------|---------|
 | All | Package | Box, Tray, OEM |
+| CPU | Brand | INTEL, AMD |
+| CPU | Model | cascading on Brand — INTEL: I3, I5, I7, I9, PENTIUM, CORE ULTRA 3, CORE ULTRA 5, CORE ULTRA 7, CORE ULTRA 9 / AMD: Ryzen 3, Ryzen 5, Ryzen 7, Ryzen 9, Athlon |
 | CPU | Socket | LGA1700, LGA1200, AM5, AM4 |
 | RAM | MemoryType | DDR4, DDR5 |
 | RAM | RGB | Yes, No |

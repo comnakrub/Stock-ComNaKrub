@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - /share/homes/na/stock-data:/app/data
+    environment:
+      - DATABASE_PATH=/app/data/stock.db
+      - PORT=3000
+    restart: unless-stopped

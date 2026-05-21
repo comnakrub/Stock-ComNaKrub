@@ -79,8 +79,7 @@ stock-comnakrub/
 | Package | TEXT | Box / Tray / OEM |
 | Socket | TEXT | LGA1700 / AM5 / AM4 |
 | Codename | TEXT | |
-| List | INTEGER | Total units received (stock in) |
-| Total | INTEGER | Current units on hand (auto: List − deducted) |
+| Total | INTEGER | Current units on hand |
 | Cost | REAL | Cost per unit (฿) |
 | Note | TEXT | |
 
@@ -97,7 +96,6 @@ stock-comnakrub/
 | MemoryType | TEXT | DDR4 / DDR5 |
 | BUS | INTEGER | e.g. 3200, 5600, 6000 |
 | MemorySize | TEXT | e.g. 8GB, 16GB, 32GB |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -113,7 +111,6 @@ stock-comnakrub/
 | M2Type | TEXT | 2280 / 2242 / etc. |
 | Interface | TEXT | PCIe 4.0 NVMe / PCIe 3.0 NVMe / SATA |
 | Capacity | TEXT | 500GB / 1TB / 2TB |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -128,7 +125,6 @@ stock-comnakrub/
 | Model | TEXT | |
 | Interface | TEXT | SATA III / PCIe |
 | Capacity | TEXT | |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -145,7 +141,6 @@ stock-comnakrub/
 | Chipset | TEXT | B760 / X670E / B550 |
 | SlotRAM | INTEGER | Number of RAM slots |
 | SupportRAM | TEXT | e.g. "DDR5 128GB" |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -162,7 +157,6 @@ stock-comnakrub/
 | Series | TEXT | DUAL / VENTUS / ROG STRIX / PULSE |
 | GPUModel | TEXT | RTX 4060 / RX 7600 |
 | SizeGB | INTEGER | VRAM in GB |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -176,7 +170,6 @@ stock-comnakrub/
 | Model | TEXT | |
 | Certification | TEXT | 80+ Bronze / Gold / Platinum |
 | Watt | INTEGER | |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -193,7 +186,6 @@ stock-comnakrub/
 | PanelType | TEXT | IPS / VA / TN |
 | MaxResolution | TEXT | 1920×1080 / 2560×1440 / 3840×2160 |
 | RefreshRate | TEXT | 144Hz / 165Hz / 240Hz |
-| List | INTEGER | |
 | Total | INTEGER | |
 | Cost | REAL | |
 | Note | TEXT | |
@@ -212,7 +204,7 @@ Each of the 8 categories follows an identical pattern:
 **Add / Edit**
 - Modal form with all fields for that category
 - `Total Cost` field is read-only in the form (shows computed value)
-- On Add: `Total` = `List` (no deductions yet)
+- On Add: user sets `Total` directly
 - On Edit: `Total` is editable directly if needed (manual correction)
 - Fields with fixed options render as `<select>` dropdowns (see table below)
 
@@ -245,7 +237,7 @@ Each of the 8 categories follows an identical pattern:
 - Upload `.xlsx` file via modal
 - Server parses columns — headers must match field names exactly
 - Downloadable template `.xlsx` per category
-- Rows inserted in bulk; `Total` = `List` on import
+- Rows inserted in bulk; `Total` taken from import data
 
 ---
 

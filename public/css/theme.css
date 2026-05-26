@@ -85,6 +85,18 @@ body {
 }
 .topbar h1 { font-size: 15px; color: #c9d1d9; font-weight: 600; }
 .spacer { flex: 1; }
+.search-input {
+  width: 200px;
+  padding: 5px 10px 5px 28px;
+  background: #0d1117 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") no-repeat 8px center;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 12px;
+  transition: border-color 0.15s;
+}
+.search-input:focus { outline: none; border-color: #58a6ff; }
+.search-input::placeholder { color: #484f58; }
 .content { flex: 1; overflow: auto; padding: 16px; }
 
 /* Buttons */

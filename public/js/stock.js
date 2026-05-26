@@ -155,6 +155,7 @@ const CATEGORIES = {
 // ── State ─────────────────────────────────────────────────────────────
 let editingId = null;
 let editingCategory = null;
+const stockData = {}; // row cache per category for client-side search
 
 // ── Table render ──────────────────────────────────────────────────────
 async function renderStock(cat) {
@@ -164,10 +165,14 @@ async function renderStock(cat) {
   const titleText = currentLang === 'en' ? cfg.labelEn : cfg.labelTh;
   const addText   = currentLang === 'en' ? cfg.addLabelEn : cfg.addLabelTh;
 
+  const searchPlaceholder = currentLang === 'en' ? 'Search…' : 'ค้นหา…';
   container.innerHTML = `
     <div class="topbar">
       <h1>${titleText}</h1>
       <div class="spacer"></div>
+      <input class="search-input" id="search-${cat}" type="text"
+             placeholder="${searchPlaceholder}"
+             oninput="filterTable('${cat}', this.value)">
       <button class="btn btn-outline" onclick="openImportModal('${cat}')"
               data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button>
       <button class="btn btn-primary" onclick="openItemModal('${cat}', null)"
@@ -184,10 +189,20 @@ async function renderStock(cat) {
 
   try {
     const rows = await fetch(`/api/${cat}`).then(r => r.json());
+    stockData[cat] = rows;
     renderTable(cat, rows);
   } catch (e) {
     document.getElementById(`tbl-${cat}`).textContent = 'Error loading data.';
   }
+}
+
+function filterTable(cat, query) {
+  const rows = stockData[cat] || [];
+  if (!query.trim()) { renderTable(cat, rows); return; }
+  const q = query.toLowerCase();
+  renderTable(cat, rows.filter(row =>
+    Object.values(row).some(v => String(v ?? '').toLowerCase().includes(q))
+  ));
 }
 
 function renderTable(cat, rows) {

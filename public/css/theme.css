@@ -151,6 +151,23 @@ tr:last-child td { border-bottom: none; }
 /* TotalCost column */
 .cell-totalcost { color: #58a6ff; font-weight: 500; }
 
+/* Summary bar */
+.summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.summary-item { display: flex; align-items: center; gap: 6px; }
+.summary-label { color: #8b949e; }
+.summary-value { color: #e6edf3; font-weight: 600; font-size: 14px; }
+.summary-sep { color: #30363d; margin: 0 4px; }
+
 /* Info bar */
 .info-bar {
   background: #1c2128;

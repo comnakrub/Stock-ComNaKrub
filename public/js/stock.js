@@ -179,11 +179,7 @@ async function renderStock(cat) {
               data-en="${cfg.addLabelEn}" data-th="${cfg.addLabelTh}">${addText}</button>
     </div>
     <div class="content">
-      <div class="info-bar"
-           data-en="Total Cost = Cost/unit × Total (auto)"
-           data-th="Total Cost = ต้นทุน/ชิ้น × คงเหลือ (อัตโนมัติ)">
-        Total Cost = Cost/unit × Total (auto)
-      </div>
+      <div class="summary-bar" id="summary-${cat}"></div>
       <div class="table-wrap" id="tbl-${cat}">Loading…</div>
     </div>`;
 
@@ -207,6 +203,20 @@ function filterTable(cat, query) {
 
 function renderTable(cat, rows) {
   const cfg = CATEGORIES[cat];
+
+  // Update summary bar
+  const totalQty  = rows.reduce((s, r) => s + (r.Total ?? 0), 0);
+  const totalCost = rows.reduce((s, r) => s + (r.TotalCost ?? 0), 0);
+  const summaryEl = document.getElementById(`summary-${cat}`);
+  if (summaryEl) {
+    const qtyLabel  = currentLang === 'en' ? 'Total Qty' : 'จำนวนรวม';
+    const costLabel = currentLang === 'en' ? 'Total Value' : 'มูลค่ารวม';
+    summaryEl.innerHTML =
+      `<span class="summary-item"><span class="summary-label">${qtyLabel}</span><span class="summary-value">${totalQty.toLocaleString()}</span></span>` +
+      `<span class="summary-sep">|</span>` +
+      `<span class="summary-item"><span class="summary-label">${costLabel}</span><span class="summary-value">฿${totalCost.toLocaleString()}</span></span>`;
+  }
+
   // Display columns: exclude TotalCost from headers (it's always last data col before Actions)
   const displayFields = cfg.fields.filter(f => f.key !== 'TotalCost' && f.key !== 'Note');
 

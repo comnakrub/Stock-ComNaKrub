@@ -21,7 +21,9 @@ function goTo(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
 
-  if (page === 'diy') {
+  if (page === 'dashboard') {
+    renderDashboard();
+  } else if (page === 'diy') {
     loadDiyCatalog();
   } else {
     renderStock(page);

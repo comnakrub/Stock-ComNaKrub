@@ -18,4 +18,13 @@ function generateTemplate(fields) {
   return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 }
 
-module.exports = { parseExcel, generateTemplate };
+function generateExport(rows, fields, sheetName) {
+  const headers = [...fields, 'TotalCost'];
+  const data = rows.map(row => headers.map(f => row[f] ?? null));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+}
+
+module.exports = { parseExcel, generateTemplate, generateExport };

@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { parseExcel, generateTemplate } = require('./excel');
+const { parseExcel, generateTemplate, generateExport } = require('./excel');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -68,6 +68,17 @@ function createCategoryRouter(db, { table, fields }) {
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
+  });
+
+  // GET /export — download all current data as .xlsx
+  router.get('/export', (req, res) => {
+    const rows = db.prepare(
+      `SELECT *, Cost * Total AS TotalCost FROM ${table} ORDER BY id`
+    ).all();
+    const buf = generateExport(rows, fields, table.toUpperCase());
+    res.setHeader('Content-Disposition', `attachment; filename="${table}-export.xlsx"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buf);
   });
 
   // GET /template — download blank .xlsx with correct headers

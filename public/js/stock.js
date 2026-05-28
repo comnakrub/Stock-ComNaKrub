@@ -21,7 +21,7 @@ const CATEGORIES = {
         },
       },
       { key: 'Package', labelEn: 'Package', labelTh: 'แพ็กเกจ', type: 'select', options: ['Box', 'Tray', 'OEM'] },
-      { key: 'Socket', labelEn: 'Socket', labelTh: 'ซ็อกเก็ต', type: 'select', options: ['LGA1700', 'LGA1200', 'AM5', 'AM4'] },
+      { key: 'Socket', labelEn: 'Socket', labelTh: 'ซ็อกเก็ต', type: 'select', options: ['LGA1851', 'LGA1700', 'LGA1200', 'AM5', 'AM4'] },
       { key: 'Codename', labelEn: 'Codename', labelTh: 'โค้ดเนม', type: 'text' },
       { key: 'Total', labelEn: 'Total (On Hand)', labelTh: 'คงเหลือ', type: 'number' },
       { key: 'Cost', labelEn: 'Cost/unit (฿)', labelTh: 'ต้นทุน/ชิ้น (฿)', type: 'number' },
@@ -173,6 +173,8 @@ async function renderStock(cat) {
       <input class="search-input" id="search-${cat}" type="text"
              placeholder="${searchPlaceholder}"
              oninput="filterTable('${cat}', this.value)">
+      <button class="btn btn-outline" onclick="exportExcel('${cat}')"
+              data-en="Export Excel" data-th="ส่งออก Excel">Export Excel</button>
       <button class="btn btn-outline" onclick="openImportModal('${cat}')"
               data-en="Import Excel" data-th="นำเข้า Excel">Import Excel</button>
       <button class="btn btn-primary" onclick="openItemModal('${cat}', null)"
@@ -402,4 +404,9 @@ async function doImport() {
 
 function downloadTemplate() {
   window.location.href = `/api/${editingCategory}/template`;
+}
+
+// ── Export Excel ──────────────────────────────────────────────────────
+function exportExcel(cat) {
+  window.location.href = `/api/${cat}/export`;
 }

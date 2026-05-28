@@ -1,6 +1,8 @@
-let diySpec = {};       // { [category]: { id, type, cost } }
+// diySpec: { [category]: { id, type, cost, qty, maxQty } }
+let diySpec = {};
 let currentTxId = null;
 let catalogData = [];
+let isConfirming = false;
 
 const DIY_CATEGORIES = ['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor'];
 const DIY_LABELS = { cpu: 'CPU', ram: 'RAM', m2: 'M.2', ssd: 'SSD', mainboard: 'Mainboard', vga: 'VGA', psu: 'PSU', monitor: 'Monitor' };
@@ -8,12 +10,11 @@ const DIY_LABELS = { cpu: 'CPU', ram: 'RAM', m2: 'M.2', ssd: 'SSD', mainboard: '
 async function loadDiyCatalog() {
   const page = document.getElementById('page-diy');
   page.innerHTML = buildDiyShell();
-
   try {
     catalogData = await fetch('/api/diy/catalog').then(r => r.json());
     renderDiyTab(DIY_CATEGORIES[0]);
   } catch (e) {
-    page.innerHTML = '<p style="padding:20px;color:#f85149">Failed to load catalog</p>';
+    page.innerHTML = '<p style="padding:20px;color:#d85050">Failed to load catalog</p>';
   }
 }
 
@@ -47,8 +48,8 @@ function buildDiyShell() {
         <div class="diy-spec-list" id="diy-spec-list"></div>
         <div class="diy-foot">
           <div class="diy-total">
-            <span style="color:#8b949e;font-size:12px" data-en="${tcEn}" data-th="${tcTh}">${currentLang === 'en' ? tcEn : tcTh}</span>
-            <span style="color:#f0883e;font-size:17px;font-weight:700" id="diy-total-val">฿0</span>
+            <span style="color:#6096c0;font-size:12px" data-en="${tcEn}" data-th="${tcTh}">${currentLang === 'en' ? tcEn : tcTh}</span>
+            <span style="color:#d97538;font-size:17px;font-weight:700" id="diy-total-val">฿0</span>
           </div>
           <button class="btn btn-success" style="width:100%;padding:8px" onclick="showDiyPreview()"
                   data-en="${prevEn}" data-th="${prevTh}">${currentLang === 'en' ? prevEn : prevTh}</button>
@@ -74,26 +75,51 @@ function renderDiyTab(cat) {
   }
 
   container.innerHTML = items.map(item => {
-    const selected = diySpec[cat] && diySpec[cat].id === item.id;
+    const sel = diySpec[cat] && diySpec[cat].id === item.id;
+    const qty = sel ? diySpec[cat].qty : 0;
+    const atMax = sel && qty >= item.Total;
+    const borderStyle = sel ? 'border-color:#2b8abf;background:#f0f8ff' : '';
+    const qtyBadge = sel
+      ? `<span class="diy-item-qty-badge">×${qty}</span>`
+      : '';
     return `
-      <div class="diy-item" style="${selected ? 'border-color:#1f6feb' : ''}">
-        <div>
-          <div style="font-size:12px;color:#c9d1d9">${item.Type}</div>
-          <div style="font-size:10px;color:#8b949e">Stock: ${item.Total} | Cost: ฿${item.Cost.toLocaleString()}/unit</div>
+      <div class="diy-item" style="${borderStyle}">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;color:#1a3352;font-weight:500">${item.Type}</div>
+          <div style="font-size:10px;color:#6096c0;margin-top:2px">
+            ${currentLang === 'en' ? 'Stock' : 'คงเหลือ'}: ${item.Total} &nbsp;|&nbsp; ฿${item.Cost.toLocaleString()}/unit
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="color:#58a6ff;font-weight:500">฿${item.Cost.toLocaleString()}</span>
-          <button class="btn btn-success" style="padding:3px 8px"
-                  onclick="addToSpec('${cat}', ${item.id}, '${item.Type.replace(/'/g, "\\'")}', ${item.Cost})">+</button>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          ${qtyBadge}
+          <span style="color:#1e6aad;font-weight:600;font-size:12px">฿${item.Cost.toLocaleString()}</span>
+          <button class="btn btn-success" style="padding:3px 10px;font-size:13px;border-radius:20px"
+                  ${atMax ? 'disabled style="opacity:0.4;cursor:not-allowed;padding:3px 10px"' : ''}
+                  onclick="addToSpec('${cat}', ${item.id}, '${item.Type.replace(/'/g, "\\'")}', ${item.Cost}, ${item.Total})">+</button>
         </div>
       </div>`;
   }).join('');
 }
 
-function addToSpec(cat, id, type, cost) {
-  diySpec[cat] = { id, type, cost };
+function addToSpec(cat, id, type, cost, maxQty) {
+  if (diySpec[cat] && diySpec[cat].id === id) {
+    if (diySpec[cat].qty < maxQty) diySpec[cat].qty++;
+  } else {
+    diySpec[cat] = { id, type, cost, qty: 1, maxQty };
+  }
   renderDiySpec();
-  // Re-render current tab to show selection highlight
+  const activeTab = document.querySelector('.diy-tab.active');
+  if (activeTab && activeTab.textContent === DIY_LABELS[cat]) renderDiyTab(cat);
+}
+
+function changeQty(cat, delta) {
+  if (!diySpec[cat]) return;
+  const newQty = diySpec[cat].qty + delta;
+  if (newQty < 1) { removeFromSpec(cat); return; }
+  if (newQty > diySpec[cat].maxQty) return;
+  diySpec[cat].qty = newQty;
+  renderDiySpec();
+  // Refresh tab to update max-reached state on "+" button
   const activeTab = document.querySelector('.diy-tab.active');
   if (activeTab && activeTab.textContent === DIY_LABELS[cat]) renderDiyTab(cat);
 }
@@ -101,6 +127,11 @@ function addToSpec(cat, id, type, cost) {
 function removeFromSpec(cat) {
   delete diySpec[cat];
   renderDiySpec();
+  const activeTab = document.querySelector('.diy-tab.active');
+  if (activeTab) {
+    const activeCat = DIY_CATEGORIES.find(c => DIY_LABELS[c] === activeTab.textContent);
+    if (activeCat === cat) renderDiyTab(cat);
+  }
 }
 
 function clearDiySpec() {
@@ -110,7 +141,8 @@ function clearDiySpec() {
 
 function renderDiySpec() {
   const list = document.getElementById('diy-spec-list');
-  const total = Object.values(diySpec).reduce((s, i) => s + i.cost, 0);
+  if (!list) return;
+  const total = Object.values(diySpec).reduce((s, i) => s + i.cost * i.qty, 0);
   document.getElementById('diy-total-val').textContent = '฿' + total.toLocaleString();
 
   const entries = Object.entries(diySpec);
@@ -122,7 +154,15 @@ function renderDiySpec() {
     <div class="spec-row">
       <span class="spec-cat">${DIY_LABELS[cat]}</span>
       <span class="spec-name" title="${item.type}">${item.type}</span>
-      <span class="spec-price">฿${item.cost.toLocaleString()}</span>
+      <div class="spec-qty-ctrl">
+        <button class="spec-qty-btn" onclick="changeQty('${cat}', -1)">−</button>
+        <span class="spec-qty-val">${item.qty}</span>
+        <button class="spec-qty-btn" onclick="changeQty('${cat}', 1)" ${item.qty >= item.maxQty ? 'disabled' : ''}>+</button>
+      </div>
+      <div style="text-align:right">
+        <div class="spec-price">฿${(item.cost * item.qty).toLocaleString()}</div>
+        ${item.qty > 1 ? `<div style="font-size:9px;color:#6096c0">฿${item.cost.toLocaleString()}/unit</div>` : ''}
+      </div>
       <button class="spec-rm" onclick="removeFromSpec('${cat}')">✕</button>
     </div>`).join('');
 }
@@ -133,21 +173,34 @@ function showDiyPreview() {
     alert(currentLang === 'en' ? 'Please select at least one item' : 'กรุณาเลือกอย่างน้อย 1 รายการ');
     return;
   }
-  const total = entries.reduce((s, [, i]) => s + i.cost, 0);
+  const total = entries.reduce((s, [, i]) => s + i.cost * i.qty, 0);
+  const qtyLabel  = currentLang === 'en' ? 'qty' : 'ชิ้น';
+  const unitLabel = currentLang === 'en' ? 'Cost/unit' : 'ราคา/ชิ้น';
   const rows = entries.map(([cat, item]) => `
     <div class="prev-row">
-      <span style="color:#8b949e">${DIY_LABELS[cat]}</span>
-      <span>${item.type}</span>
-      <span style="color:#58a6ff;font-weight:500">฿${item.cost.toLocaleString()}</span>
+      <span style="color:#6096c0;min-width:76px">${DIY_LABELS[cat]}</span>
+      <span style="flex:1">${item.type}</span>
+      <span style="color:#6096c0;margin:0 8px">×${item.qty}</span>
+      <div style="text-align:right">
+        <div style="color:#1e6aad;font-weight:600">฿${(item.cost * item.qty).toLocaleString()}</div>
+        ${item.qty > 1 ? `<div style="font-size:10px;color:#6096c0">฿${item.cost.toLocaleString()}/${currentLang === 'en' ? 'unit' : 'ชิ้น'}</div>` : ''}
+      </div>
     </div>`).join('');
   const tcLabel = currentLang === 'en' ? 'Total Cost' : 'ต้นทุนรวม';
   document.getElementById('diy-preview-body').innerHTML =
-    rows + `<div class="prev-total"><span>${tcLabel}</span><span>฿${total.toLocaleString()}</span></div>`;
+    rows + `<div class="prev-total"><span>${tcLabel}</span><span style="color:#1e6aad">฿${total.toLocaleString()}</span></div>`;
   openModal('modal-diy-preview');
 }
 
 async function confirmOrder() {
-  const selections = Object.entries(diySpec).map(([cat, item]) => ({ table: cat, id: item.id }));
+  if (isConfirming) return;
+  isConfirming = true;
+  const btn = document.querySelector('#modal-diy-preview .btn-success');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  const selections = Object.entries(diySpec).map(([cat, item]) => ({
+    table: cat, id: item.id, qty: item.qty,
+  }));
   try {
     const res = await fetch('/api/diy/confirm', {
       method: 'POST',
@@ -158,22 +211,32 @@ async function confirmOrder() {
     if (!res.ok) { alert(data.error); return; }
     currentTxId = data.txId;
 
-    // Show confirmed modal
-    const total = Object.values(diySpec).reduce((s, i) => s + i.cost, 0);
-    const tcLabel = currentLang === 'en' ? 'Total Cost' : 'ต้นทุนรวม';
+    const total = Object.values(diySpec).reduce((s, i) => s + i.cost * i.qty, 0);
+    const tcLabel  = currentLang === 'en' ? 'Total Cost' : 'ต้นทุนรวม';
+    const qtyLabel = currentLang === 'en' ? 'qty' : 'ชิ้น';
     const rows = Object.entries(diySpec).map(([cat, item]) => `
       <div class="prev-row">
-        <span style="color:#8b949e">${DIY_LABELS[cat]}</span>
-        <span>${item.type}</span>
-        <span style="color:#58a6ff;font-weight:500">฿${item.cost.toLocaleString()}</span>
+        <span style="color:#6096c0;min-width:76px">${DIY_LABELS[cat]}</span>
+        <span style="flex:1">${item.type}</span>
+        <span style="color:#6096c0;margin:0 8px">×${item.qty}</span>
+        <div style="text-align:right">
+          <div style="color:#1e6aad;font-weight:600">฿${(item.cost * item.qty).toLocaleString()}</div>
+          ${item.qty > 1 ? `<div style="font-size:10px;color:#6096c0">฿${item.cost.toLocaleString()}/${currentLang === 'en' ? 'unit' : 'ชิ้น'}</div>` : ''}
+        </div>
       </div>`).join('');
     document.getElementById('diy-confirmed-body').innerHTML =
-      rows + `<div class="prev-total"><span>${tcLabel}</span><span>฿${total.toLocaleString()}</span></div>`;
+      rows + `<div class="prev-total"><span>${tcLabel}</span><span style="color:#1e6aad">฿${total.toLocaleString()}</span></div>`;
 
     closeModal('modal-diy-preview');
     openModal('modal-diy-confirmed');
   } catch (e) {
     alert('Confirm failed: ' + e.message);
+  } finally {
+    isConfirming = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = currentLang === 'en' ? '✓ Confirm & Deduct Stock' : '✓ ยืนยันและตัด Stock';
+    }
   }
 }
 

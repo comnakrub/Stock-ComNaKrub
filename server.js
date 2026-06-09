@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Stock category routes
-['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor'].forEach(cat => {
+['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor', 'pccase'].forEach(cat => {
   app.use(`/api/${cat}`, require(`./routes/${cat}`)(db));
 });
 

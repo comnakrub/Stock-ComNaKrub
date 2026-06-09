@@ -9,6 +9,7 @@ const DASH_CATS = [
   { key: 'vga',       label: 'VGA',       color: '#c04080', bg: '#f8d0e8' },
   { key: 'psu',       label: 'PSU',       color: '#5a7830', bg: '#d8ecc0' },
   { key: 'monitor',   label: 'Monitor',   color: '#2048a8', bg: '#ccd8f0' },
+  { key: 'pccase',   label: 'CASE',      color: '#5a4030', bg: '#ecddd4' },
 ];
 
 async function renderDashboard() {

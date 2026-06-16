@@ -1,7 +1,7 @@
 const express = require('express');
 const { randomUUID } = require('crypto');
 
-const VALID_TABLES = ['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor'];
+const VALID_TABLES = ['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor', 'pccase'];
 
 module.exports = (db) => {
   const router = express.Router();

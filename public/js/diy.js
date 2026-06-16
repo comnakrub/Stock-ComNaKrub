@@ -3,9 +3,10 @@ let diySpec = {};
 let currentTxId = null;
 let catalogData = [];
 let isConfirming = false;
+let diySearchQuery = {};
 
-const DIY_CATEGORIES = ['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor'];
-const DIY_LABELS = { cpu: 'CPU', ram: 'RAM', m2: 'M.2', ssd: 'SSD', mainboard: 'Mainboard', vga: 'VGA', psu: 'PSU', monitor: 'Monitor' };
+const DIY_CATEGORIES = ['cpu', 'ram', 'm2', 'ssd', 'mainboard', 'vga', 'psu', 'monitor', 'pccase'];
+const DIY_LABELS = { cpu: 'CPU', ram: 'RAM', m2: 'M.2', ssd: 'SSD', mainboard: 'Mainboard', vga: 'VGA', psu: 'PSU', monitor: 'Monitor', pccase: 'CASE' };
 
 async function loadDiyCatalog() {
   const page = document.getElementById('page-diy');
@@ -41,6 +42,9 @@ function buildDiyShell() {
     <div class="diy-body">
       <div class="diy-left">
         <div class="diy-tabs">${tabs}</div>
+        <input class="search-input" id="diy-search" type="text"
+               placeholder="${currentLang === 'en' ? 'Search…' : 'ค้นหา…'}"
+               oninput="filterDiyTab(this.value)" style="margin:8px;box-sizing:border-box;width:calc(100% - 16px)">
         <div class="diy-items" id="diy-items"></div>
       </div>
       <div class="diy-right">
@@ -61,16 +65,23 @@ function buildDiyShell() {
 function selectDiyTab(el, cat) {
   document.querySelectorAll('.diy-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
+  const searchInput = document.getElementById('diy-search');
+  if (searchInput) { searchInput.value = ''; diySearchQuery = {}; }
   renderDiyTab(cat);
 }
 
-function renderDiyTab(cat) {
+function renderDiyTab(cat, query) {
   const entry = catalogData.find(c => c.category === cat);
-  const items = entry ? entry.items : [];
+  let items = entry ? entry.items : [];
   const container = document.getElementById('diy-items');
 
+  if (query) {
+    const q = query.toLowerCase();
+    items = items.filter(item => item.Type.toLowerCase().includes(q) || (item.Brand && item.Brand.toLowerCase().includes(q)));
+  }
+
   if (!items.length) {
-    container.innerHTML = `<div class="diy-empty">${currentLang === 'en' ? 'No stock available' : 'ไม่มีสินค้าในคลัง'}</div>`;
+    container.innerHTML = `<div class="diy-empty">${query ? (currentLang === 'en' ? 'No results' : 'ไม่พบผลลัพธ์') : (currentLang === 'en' ? 'No stock available' : 'ไม่มีสินค้าในคลัง')}</div>`;
     return;
   }
 
@@ -101,6 +112,14 @@ function renderDiyTab(cat) {
   }).join('');
 }
 
+function filterDiyTab(query) {
+  const activeTab = document.querySelector('.diy-tab.active');
+  if (!activeTab) return;
+  const activeCat = DIY_CATEGORIES.find(c => DIY_LABELS[c] === activeTab.textContent);
+  diySearchQuery[activeCat] = query;
+  renderDiyTab(activeCat, query);
+}
+
 function addToSpec(cat, id, type, cost, maxQty) {
   if (diySpec[cat] && diySpec[cat].id === id) {
     if (diySpec[cat].qty < maxQty) diySpec[cat].qty++;
@@ -109,7 +128,7 @@ function addToSpec(cat, id, type, cost, maxQty) {
   }
   renderDiySpec();
   const activeTab = document.querySelector('.diy-tab.active');
-  if (activeTab && activeTab.textContent === DIY_LABELS[cat]) renderDiyTab(cat);
+  if (activeTab && activeTab.textContent === DIY_LABELS[cat]) renderDiyTab(cat, diySearchQuery[cat]);
 }
 
 function changeQty(cat, delta) {
@@ -119,9 +138,8 @@ function changeQty(cat, delta) {
   if (newQty > diySpec[cat].maxQty) return;
   diySpec[cat].qty = newQty;
   renderDiySpec();
-  // Refresh tab to update max-reached state on "+" button
   const activeTab = document.querySelector('.diy-tab.active');
-  if (activeTab && activeTab.textContent === DIY_LABELS[cat]) renderDiyTab(cat);
+  if (activeTab && activeTab.textContent === DIY_LABELS[cat]) renderDiyTab(cat, diySearchQuery[cat]);
 }
 
 function removeFromSpec(cat) {
@@ -130,7 +148,7 @@ function removeFromSpec(cat) {
   const activeTab = document.querySelector('.diy-tab.active');
   if (activeTab) {
     const activeCat = DIY_CATEGORIES.find(c => DIY_LABELS[c] === activeTab.textContent);
-    if (activeCat === cat) renderDiyTab(cat);
+    if (activeCat === cat) renderDiyTab(cat, diySearchQuery[cat]);
   }
 }
 
